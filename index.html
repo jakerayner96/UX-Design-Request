@@ -568,7 +568,7 @@
     key: '',      // your API key
     token: '',    // your token
     boardId: '699d774274279339e0ae8171',   // UX Board 2026
-    listName: 'UX Requests'                // tickets land at the top of this column
+    listName: 'Inbox'                      // tickets land at the top of this column
   };
   const trelloConfigured = () => TRELLO.key && TRELLO.token && TRELLO.boardId;
 
@@ -672,21 +672,21 @@
         try {
           const ares = await fetch('https://api.trello.com/1/cards/' + card.id + '/attachments?' + auth,
             { method: 'POST', body: fd });
-          if (!ares.ok) failed.push(files[i].name);
-        } catch (e) { failed.push(files[i].name); }
+          if (!ares.ok) {
+            console.error('Attachment upload failed for', files[i].name, ares.status, await ares.text().catch(() => ''));
+            failed.push(files[i].name);
+          }
+        } catch (e) { console.error('Attachment upload error for', files[i].name, e); failed.push(files[i].name); }
       }
 
-      // 4. Confirm
-      const link = document.getElementById('trelloLink');
-      link.href = card.shortUrl || card.url;
-      link.textContent = 'Open ticket';
-      document.querySelector('.modal-head h2').textContent = 'Ticket created';
-      document.querySelector('.note').textContent = failed.length
-        ? 'These attachments failed to upload, add them to the ticket manually: ' + failed.join(', ')
-        : (files.length ? 'Ticket created in UX Requests with ' + files.length + ' attachment' + (files.length > 1 ? 's' : '') + '.' : 'Ticket created at the top of UX Requests.');
-      document.getElementById('overlay').classList.add('show');
+      // 4. Straight to Trello, no confirmation modal. Only interrupt if something needs manual follow-up.
+      if (failed.length) {
+        alert('Ticket created, but these attachments failed to upload — add them to the card manually in Trello:\n\n' + failed.join('\n'));
+      }
+      window.location.href = card.shortUrl || card.url;
     } catch (err) {
       // Fall back to the manual flow so the brief is never lost
+      console.error(err);
       document.querySelector('.modal-head h2').textContent = 'Ticket creation failed - use manual option';
       const files = document.getElementById('f_files').files;
       document.querySelector('.note').textContent = (files.length
