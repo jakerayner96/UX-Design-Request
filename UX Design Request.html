@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Design Request</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f8f8;
+    --card: #ffffff;
+    --input-bg: #f2f4f4;
+    --border: #e1e5e6;
+    --chip-border: #e7e7e7;
+    --chip-on-bg: #e8f4f2;
+    --cta: #00787d;
+    --aqua: #00a3ad;
+    --text: #1d2426;
+    --dim: #5a6467;
+    --faint: #8b9598;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Geologica", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 20px 80px;
+  }
+  .container { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+  header { display: flex; flex-direction: column; gap: 18px; }
+  header h1 { font-size: 28px; font-weight: 600; color: var(--text); }
+  header p { font-size: 15px; font-weight: 300; color: #000; }
+
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .section-title { display: flex; align-items: center; gap: 10px; }
+  .section-title .num {
+    background: var(--cta);
+    color: #fff;
+    font-weight: 700;
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  .section-title .tt {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.04px;
+    color: #000;
+  }
+  .hint { font-size: 15px; font-weight: 300; color: #000; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.gap8 { gap: 8px; }
+  label { font-size: 13.5px; font-weight: 400; color: var(--text); }
+  label.med { font-weight: 500; }
+  .sub { font-size: 12.5px; color: var(--faint); }
+  input[type="text"], textarea, select {
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 300;
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 72px; padding: 12px; }
+  .r8 { border-radius: 8px !important; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--cta); }
+  ::placeholder { color: var(--faint); font-weight: 300; }
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6467' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+  select:invalid { color: var(--faint); }
+
+  .row { display: flex; gap: 14px; }
+  .row .field { flex: 1; }
+  @media (max-width: 560px) { .row { flex-direction: column; } }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    background: #fff;
+    border: 1px solid var(--chip-border);
+    border-radius: 42px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.28px;
+    color: #000;
+    cursor: pointer;
+    user-select: none;
+  }
+  .chip.on { background: var(--chip-on-bg); border-color: var(--cta); }
+
+  .reveal { display: none; }
+  .reveal.show { display: block; }
+
+  /* UX approach radio cards */
+  .radio-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 13px 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .radio-card .rb {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--chip-border);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .radio-card.on .rb { border-color: var(--cta); }
+  .radio-card.on .rb::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: var(--cta);
+  }
+  .radio-card .copy { display: flex; flex-direction: column; gap: 4px; }
+  .radio-card strong { font-size: 13.5px; font-weight: 400; color: var(--text); }
+  .radio-card span { font-size: 12px; font-weight: 300; color: #000; }
+  .radio-group { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Fit radio cards (section 6 style) */
+  .radio6 {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 13px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .radio6 .dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .radio6.on { background: rgba(0,163,173,0.08); border-color: var(--aqua); }
+  .radio6.on .dot { background: var(--aqua); border-color: var(--aqua); box-shadow: inset 0 0 0 3px #fff; }
+  .radio6 strong { display: block; font-size: 14px; font-weight: 500; color: var(--text); }
+  .radio6 span { font-size: 13px; font-weight: 400; color: var(--dim); }
+
+  .scope-group { display: flex; flex-direction: column; gap: 8px; }
+  .scope-label {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.69px;
+    padding: 3px 10px;
+    border-radius: 5px;
+  }
+  .scope-must { background: rgba(220,60,60,0.12); color: #b93333; }
+  .scope-should { background: rgba(200,140,0,0.12); color: #9a6b00; }
+  .scope-could { background: rgba(26,158,110,0.12); color: #14795a; }
+  .scope-out { background: rgba(90,100,103,0.12); color: #5a6467; }
+
+  .filedrop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 24px 12px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .filedrop:hover, .filedrop.drag { border-color: var(--cta); }
+  .filedrop svg { stroke: var(--cta); }
+  .filedrop .main { font-size: 14px; font-weight: 300; color: var(--text); }
+  .filedrop .main b { font-weight: 500; color: var(--cta); }
+  .filedrop .cap { font-size: 12.5px; font-weight: 300; color: var(--faint); }
+  .filedrop span { display: block; color: var(--text); font-weight: 400; font-size: 13px; }
+
+  /* Mid CTA */
+  .cta-ticket {
+    width: 100%;
+    height: 50px;
+    background: var(--cta);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  /* Bottom actions */
+  .actions { display: flex; gap: 12px; }
+  .btn-ghost {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--dim);
+    cursor: pointer;
+  }
+  .btn-primary {
+    flex: 1;
+    background: var(--aqua);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  /* Output modal */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 50;
+    padding: 24px;
+    overflow-y: auto;
+  }
+  .overlay.show { display: flex; align-items: flex-start; justify-content: center; }
+  .modal {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 680px;
+    width: 100%;
+    margin-top: 4vh;
+    overflow: hidden;
+  }
+  .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .modal-head h2 { font-size: 17px; font-weight: 600; }
+  .modal-close { background: none; border: none; color: var(--faint); font-size: 22px; cursor: pointer; padding: 4px 8px; line-height: 1; }
+  .modal-body { padding: 24px; }
+  .card-title-preview { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .card-preview {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--dim);
+    white-space: pre-wrap;
+    max-height: 320px;
+    overflow-y: auto;
+    margin-bottom: 18px;
+  }
+  .modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .modal-actions a, .modal-actions button {
+    flex: 1;
+    min-width: 160px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 12px 18px;
+    cursor: pointer;
+  }
+  .btn-trello { background: #0079bf; border: 1px solid #0079bf; color: #fff; }
+  .btn-copy { background: #fff; border: 1px solid var(--border); color: var(--dim); }
+  .copied { color: #14795a !important; border-color: #14795a !important; }
+  .note { font-size: 12.5px; color: var(--faint); margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>UX Design Request</h1>
+    <p>Please fill in the form below to the best of your ability.<br>This will generate a ticket for you to submit into the UX workflow.</p>
+  </header>
+
+  <!-- Section 1 · Overview -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span><span class="tt">OVERVIEW</span></div>
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="f_title" placeholder="e.g. USP banner optimisation">
+    </div>
+    <div class="field">
+      <label>Detail</label>
+      <textarea id="f_detail" placeholder="Please give a detailed overview of the design request."></textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Requested by</label>
+        <input type="text" id="f_requester" placeholder="Name / team">
+      </div>
+      <div class="field">
+        <label>Needed by</label>
+        <input type="text" id="f_deadline" placeholder="dd/mm/yyyy">
+      </div>
+    </div>
+    <div class="field">
+      <label>Sign-off owner</label>
+      <input type="text" id="f_signoff" placeholder="Who approves the final design?">
+    </div>
+    <div class="field">
+      <label>Priority</label>
+      <select id="f_priority" required>
+        <option value="" selected>Select…</option>
+        <option>P1 - Top Priority - Re-prioritise WIP to start as soon as possible</option>
+        <option>P2 - Medium Priority - Plan into BAU workflow</option>
+        <option>P3 - Low Priority - When capacity allows</option>
+        <option>P0 - Highest Priority - Drop everything and work on this now (do not use if not urgent)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Section 2 · The problem, outcome & measure -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span><span class="tt">THE PROBLEM, OUTCOME &amp; MEASURE</span></div>
+    <p class="hint">Tell us the problem you're solving or the outcome you want to achieve.</p>
+    <div class="field">
+      <label>Problem we're solving</label>
+      <textarea id="f_problem" placeholder="What's broken, missing, or underperforming? What triggered this request?"></textarea>
+    </div>
+    <div class="field">
+      <label>Outcome you would like to achieve</label>
+      <textarea id="f_outcome" placeholder="What do others do? What does success for us look like?"></textarea>
+    </div>
+    <div class="field">
+      <label>Success measure</label>
+      <input type="text" id="f_success" placeholder="How we'll know it worked, (e.g. conversion rate, engagement rate, AOV, LTV etc.)">
+    </div>
+  </div>
+
+  <!-- Section 3 · Who is it for -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span><span class="tt">WHO IS IT FOR</span></div>
+    <div class="field">
+      <label>End user / audience</label>
+      <input type="text" id="f_audience" placeholder="Who experiences this?" style="font-size:12px">
+    </div>
+    <div class="field gap8">
+      <label>Brands impacted</label>
+      <div class="chips" id="brands">
+        <div class="chip" data-val="All Brands">All Brands</div>
+        <div class="chip" data-val="Debenhams">Debenhams</div>
+        <div class="chip" data-val="Boohoo">Boohoo</div>
+        <div class="chip" data-val="Pretty Little Thing">Pretty Little Thing</div>
+        <div class="chip" data-val="BoohooMan">BoohooMan</div>
+        <div class="chip" data-val="Karen Millen">Karen Millen</div>
+        <div class="chip" data-val="Other" data-reveals="f_brands_other">Other</div>
+      </div>
+      <input type="text" id="f_brands_other" class="reveal" placeholder="Other...">
+    </div>
+    <div class="field">
+      <label>Regions / markets</label>
+      <input type="text" id="f_regions" placeholder="e.g. UK only, UK + EU, all markets">
+    </div>
+    <div class="field gap8">
+      <label>Platforms</label>
+      <div class="chips single" id="platforms">
+        <div class="chip" data-val="Web">Web</div>
+        <div class="chip" data-val="App">App</div>
+        <div class="chip" data-val="Both">Both</div>
+      </div>
+    </div>
+    <div class="field gap8">
+      <label>Pages / touchpoints</label>
+      <p class="sub">Every page the feature appears on.</p>
+      <div class="chips" id="pages">
+        <div class="chip" data-val="Homepage/Content">Homepage/Content</div>
+        <div class="chip" data-val="PLP">PLP</div>
+        <div class="chip" data-val="PDP">PDP</div>
+        <div class="chip" data-val="Bag">Bag</div>
+        <div class="chip" data-val="Checkout">Checkout</div>
+        <div class="chip" data-val="Account">Account</div>
+        <div class="chip" data-val="Order Confirmation">Order Confirmation</div>
+        <div class="chip" data-val="Email">Email</div>
+        <div class="chip" data-val="Other" data-reveals="f_pages_other">Other</div>
+      </div>
+      <input type="text" id="f_pages_other" class="reveal" placeholder="Other...">
+    </div>
+  </div>
+
+  <!-- Section 4 · UX approach -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span><span class="tt">UX APPROACH</span></div>
+    <p class="hint">Tells us how you want us to approach this ticket.</p>
+    <div class="radio-group" id="approach">
+      <div class="radio-card" data-val="Deliver">
+        <div class="rb"></div>
+        <div class="copy">
+          <strong>Deliver</strong>
+          <span>We will run with the ticket and propose a solution for review and sign off</span>
+        </div>
+      </div>
+      <div class="radio-card" data-val="Exploration">
+        <div class="rb"></div>
+        <div class="copy">
+          <strong>Exploration</strong>
+          <span>You've got a problem, you want us to explore design options and provide recommendations</span>
+        </div>
+      </div>
+      <div class="radio-card" data-val="Collaboration">
+        <div class="rb"></div>
+        <div class="copy">
+          <strong>Collaboration</strong>
+          <span>You want to workshop through something with us before we get into the detail &amp; designs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5 · Scope -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span><span class="tt">SCOPE</span></div>
+    <div class="scope-group">
+      <span class="scope-label scope-must">MUST INCLUDE</span>
+      <textarea id="f_must" class="r8" placeholder="Non-negotiable. Delivery blocked without these."></textarea>
+    </div>
+    <div class="scope-group">
+      <span class="scope-label scope-should">SHOULD INCLUDE</span>
+      <textarea id="f_should" class="r8" placeholder="Important, but we can launch without if pushed."></textarea>
+    </div>
+    <div class="scope-group">
+      <span class="scope-label scope-could">COULD INCLUDE</span>
+      <textarea id="f_could" class="r8" placeholder="Nice to have. First to drop if constrained."></textarea>
+    </div>
+    <div class="scope-group">
+      <span class="scope-label scope-out">STRICTLY OUT OF SCOPE</span>
+      <textarea id="f_out" class="r8" placeholder="To avoid scope creep and excess UX effort."></textarea>
+    </div>
+  </div>
+
+  <!-- Section 6 · Inputs & constraints -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span><span class="tt">INPUTS &amp; CONSTRAINTS</span></div>
+    <div class="field">
+      <label class="med">Inputs you'll provide</label>
+      <textarea id="f_inputs" class="r8" placeholder="Copy, assets, guidelines, benchmarking links etc..."></textarea>
+    </div>
+    <div class="field">
+      <label class="med">Constraints (technical, legal, commercial, accessibility)</label>
+      <textarea id="f_constraints" class="r8" placeholder="Platform limits, compliance requirements, partner contractual obligations, dependencies on dev or other teams…"></textarea>
+    </div>
+    <div class="field">
+      <label class="med">Attachments (screenshots, briefs, assets)</label>
+      <label class="filedrop" for="f_files" id="filedrop">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v3a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-3"/><polyline points="7 9 12 4 17 9"/><line x1="12" y1="4" x2="12" y2="15"/></svg>
+        <span class="main"><b>Click to upload</b> or drag and drop</span>
+        <span class="cap">PNG, JPG, PDF up to 10MB per file · attached to the ticket automatically</span>
+        <span id="fileList"></span>
+      </label>
+      <input type="file" id="f_files" multiple hidden>
+    </div>
+  </div>
+
+  <button class="cta-ticket" onclick="generateCard()">Generate UX Ticket</button>
+
+</div>
+
+<!-- Output modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Your Trello card</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="card-title-preview" id="previewTitle"></div>
+      <div class="card-preview" id="previewBody"></div>
+      <div class="modal-actions">
+        <a class="btn-trello" id="trelloLink" target="_blank" rel="noopener">Open in Trello</a>
+        <button class="btn-copy" id="copyBtn" onclick="copyCard()">Copy card text</button>
+      </div>
+      <p class="note">Open in Trello prefills a new card; pick the board and list there. If the brief is very long the URL may truncate, so use Copy as backup. Trello descriptions render this markdown natively.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Chips: multi-select by default, single-select if group has .single
+  document.querySelectorAll('.chips').forEach(group => {
+    const single = group.classList.contains('single');
+    group.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (single) {
+          group.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+          chip.classList.add('on');
+        } else {
+          chip.classList.toggle('on');
+        }
+        if (chip.dataset.reveals) {
+          const target = document.getElementById(chip.dataset.reveals);
+          const on = chip.classList.contains('on');
+          target.classList.toggle('show', on);
+          if (!on) target.value = '';
+        }
+      });
+    });
+  });
+
+  // Radio card groups
+  ['approach'].forEach(id => {
+    const group = document.getElementById(id);
+    group.querySelectorAll('[data-val]').forEach(card => {
+      card.addEventListener('click', () => {
+        group.querySelectorAll('[data-val]').forEach(c => c.classList.remove('on'));
+        card.classList.add('on');
+      });
+    });
+  });
+
+  function getRadio(id) {
+    const on = document.querySelector('#' + id + ' [data-val].on');
+    return on ? on.dataset.val : '';
+  }
+  function getChips(id) {
+    return Array.from(document.querySelectorAll('#' + id + ' .chip.on')).map(c => c.dataset.val);
+  }
+  function v(id) { return document.getElementById(id).value.trim(); }
+  function lines(id) { return v(id).split('\n').map(s => s.trim()).filter(Boolean); }
+
+  // ── Trello direct creation ─────────────────────────────────────
+  // Add your API key and token to create tickets directly on Generate.
+  // Board and list are already set. Setup: see notes at bottom of this file.
+  const TRELLO = {
+    key: '',      // your API key
+    token: '',    // your token
+    boardId: '699d774274279339e0ae8171',   // UX Board 2026
+    listName: 'UX Requests'                // tickets land at the top of this column
+  };
+  const trelloConfigured = () => TRELLO.key && TRELLO.token && TRELLO.boardId;
+
+  let cardTitle = '', cardDesc = '';
+
+  function generateCard() {
+    const title = v('f_title') || 'Untitled design request';
+    const priority = v('f_priority');
+    const pShort = priority ? priority.split(' - ')[0] : '';
+    cardTitle = (pShort ? '[' + pShort + '] ' : '') + title;
+
+    const d = [];
+    const push = (label, val) => { if (val) d.push('**' + label + ':** ' + val); };
+    const pushBlock = (label, val) => { if (val) d.push('**' + label + '**\n' + val); };
+    const pushList = (label, arr) => { if (arr.length) d.push('**' + label + '**\n' + arr.map(x => '- ' + x).join('\n')); };
+
+    pushBlock('Detail', v('f_detail'));
+    push('Requested by', v('f_requester'));
+    push('Needed by', v('f_deadline'));
+    push('Sign-off owner', v('f_signoff'));
+    push('Priority', priority);
+    d.push('---');
+
+    pushBlock("Problem we're solving", v('f_problem'));
+    pushBlock('Outcome', v('f_outcome'));
+    push('Success measure', v('f_success'));
+    d.push('---');
+
+    push('Audience', v('f_audience'));
+    const brands = getChips('brands').filter(x => x !== 'Other');
+    if (v('f_brands_other')) brands.push(v('f_brands_other'));
+    push('Brands impacted', brands.join(', '));
+    push('Regions', v('f_regions'));
+    push('Platforms', getRadioLikeChips('platforms'));
+    const pages = getChips('pages').filter(x => x !== 'Other');
+    if (v('f_pages_other')) pages.push(v('f_pages_other'));
+    push('Pages / touchpoints', pages.join(', '));
+    d.push('---');
+
+    push('UX approach', getRadio('approach'));
+    d.push('---');
+
+    pushList('Must include', lines('f_must'));
+    pushList('Should include', lines('f_should'));
+    pushList('Could include', lines('f_could'));
+    pushList('Out of scope', lines('f_out'));
+
+    if (v('f_inputs') || v('f_constraints')) d.push('---');
+    pushBlock('Inputs provided', v('f_inputs'));
+    pushBlock('Constraints', v('f_constraints'));
+
+    cardDesc = d.filter((x, i) => !(x === '---' && (i === 0 || d[i-1] === '---'))).join('\n\n');
+    if (cardDesc.endsWith('---')) cardDesc = cardDesc.slice(0, -3).trim();
+
+    document.getElementById('previewTitle').textContent = cardTitle;
+    document.getElementById('previewBody').textContent = cardDesc;
+
+    const url = 'https://trello.com/add-card?mode=popup&name=' +
+      encodeURIComponent(cardTitle) + '&desc=' + encodeURIComponent(cardDesc);
+    const link = document.getElementById('trelloLink');
+    link.href = url;
+    link.textContent = 'Open in Trello';
+
+    if (trelloConfigured()) {
+      createTicket();
+    } else {
+      document.getElementById('overlay').classList.add('show');
+    }
+  }
+
+  async function createTicket() {
+    const btn = document.querySelector('.cta-ticket');
+    const auth = 'key=' + TRELLO.key + '&token=' + TRELLO.token;
+    btn.disabled = true;
+    try {
+      // 1. Resolve the target list by name
+      btn.textContent = 'Creating ticket…';
+      const lres = await fetch('https://api.trello.com/1/boards/' + TRELLO.boardId + '/lists?' + auth);
+      if (!lres.ok) throw new Error('Board lookup failed: ' + lres.status);
+      const listsData = await lres.json();
+      const want = TRELLO.listName.trim().toLowerCase();
+      const list = listsData.find(l => l.name.trim().toLowerCase() === want)
+                || listsData.find(l => l.name.trim().toLowerCase().includes(want));
+      if (!list) throw new Error('List "' + TRELLO.listName + '" not found on board');
+
+      // 2. Create the card at the top of the list
+      const cres = await fetch('https://api.trello.com/1/cards?' + new URLSearchParams({
+        key: TRELLO.key, token: TRELLO.token,
+        idList: list.id, name: cardTitle, desc: cardDesc, pos: 'top'
+      }), { method: 'POST' });
+      if (!cres.ok) throw new Error('Card creation failed: ' + cres.status);
+      const card = await cres.json();
+
+      // 3. Upload attachments to the card
+      const files = document.getElementById('f_files').files;
+      const failed = [];
+      for (let i = 0; i < files.length; i++) {
+        btn.textContent = 'Uploading ' + (i + 1) + ' of ' + files.length + '…';
+        const fd = new FormData();
+        fd.append('file', files[i]);
+        try {
+          const ares = await fetch('https://api.trello.com/1/cards/' + card.id + '/attachments?' + auth,
+            { method: 'POST', body: fd });
+          if (!ares.ok) failed.push(files[i].name);
+        } catch (e) { failed.push(files[i].name); }
+      }
+
+      // 4. Confirm
+      const link = document.getElementById('trelloLink');
+      link.href = card.shortUrl || card.url;
+      link.textContent = 'Open ticket';
+      document.querySelector('.modal-head h2').textContent = 'Ticket created';
+      document.querySelector('.note').textContent = failed.length
+        ? 'These attachments failed to upload, add them to the ticket manually: ' + failed.join(', ')
+        : (files.length ? 'Ticket created in UX Requests with ' + files.length + ' attachment' + (files.length > 1 ? 's' : '') + '.' : 'Ticket created at the top of UX Requests.');
+      document.getElementById('overlay').classList.add('show');
+    } catch (err) {
+      // Fall back to the manual flow so the brief is never lost
+      document.querySelector('.modal-head h2').textContent = 'Ticket creation failed - use manual option';
+      const files = document.getElementById('f_files').files;
+      document.querySelector('.note').textContent = (files.length
+        ? 'Attachments can\'t be carried through the manual flow, add them to the ticket in Trello. '
+        : '') + 'Open in Trello prefills the card; pick the board and list there. Use Copy as backup.';
+      document.getElementById('overlay').classList.add('show');
+    } finally {
+      btn.textContent = 'Generate UX Ticket';
+      btn.disabled = false;
+    }
+  }
+
+  function getRadioLikeChips(id) {
+    const arr = getChips(id);
+    return arr.length ? arr[0] : '';
+  }
+
+  function copyCard() {
+    const btn = document.getElementById('copyBtn');
+    navigator.clipboard.writeText(cardTitle + '\n\n' + cardDesc).then(() => {
+      btn.textContent = 'Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy card text'; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+
+  function closeModal() { document.getElementById('overlay').classList.remove('show'); }
+  document.getElementById('overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeModal(); });
+
+  function resetForm() {
+    document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+    document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+    document.querySelectorAll('.chip.on, .radio-card.on, .radio6.on').forEach(el => el.classList.remove('on'));
+    document.querySelectorAll('.reveal').forEach(el => el.classList.remove('show'));
+    document.getElementById('fileList').textContent = '';
+  }
+
+  document.getElementById('f_files').addEventListener('change', e => {
+    const names = Array.from(e.target.files).map(f => f.name);
+    document.getElementById('fileList').textContent = names.length ? names.join(', ') : '';
+  });
+
+  const drop = document.getElementById('filedrop');
+  ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault();
+    drop.classList.add('drag');
+  }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault();
+    drop.classList.remove('drag');
+  }));
+  drop.addEventListener('drop', e => {
+    const input = document.getElementById('f_files');
+    const dt = new DataTransfer();
+    Array.from(input.files).forEach(f => dt.items.add(f));
+    Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change'));
+  });
+</script>
+<!--
+TRELLO SETUP (one-off, ~5 minutes)
+
+1. API key
+   Go to https://trello.com/power-ups/admin while logged in as the account
+   that should own the tickets. Create a new Power-Up (name/workspace only,
+   nothing else needed), then open it and copy the API key.
+
+2. Token
+   On the same page click "Token" (or visit
+   https://trello.com/1/authorize?expiration=never&scope=read,write&response_type=token&key=YOUR_KEY )
+   Approve, copy the token shown.
+
+3. Paste both into the TRELLO object near the top of the script.
+   The board (UX Board 2026) and column (UX Requests) are already configured;
+   the form resolves the column by name at runtime, so renaming the column in
+   Trello only requires updating TRELLO.listName here.
+
+IMPORTANT: the account that generates the token must be a member of
+UX Board 2026 (use your invite link to add it).
+
+NOTE: anyone who can read this file can read the token and act as that
+Trello account. Use a dedicated bot/service account that only has access
+to this board, not your personal login.
+
+ATTACHMENT LIMITS: Trello caps uploads at 10MB per file on free plans
+(250MB on paid). Larger files will fail and be listed in the confirmation.
+-->
+
+</body>
+</html>
