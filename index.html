@@ -71,7 +71,7 @@
   label { font-size: 13.5px; font-weight: 400; color: var(--text); }
   label.med { font-weight: 500; }
   .sub { font-size: 12.5px; color: var(--faint); }
-  input[type="text"], textarea, select {
+  input[type="text"], input[type="date"], textarea, select {
     width: 100%;
     background: #fff;
     border: 1px solid var(--border);
@@ -86,6 +86,9 @@
   .r8 { border-radius: 8px !important; }
   input:focus, textarea:focus, select:focus { outline: none; border-color: var(--cta); }
   ::placeholder { color: var(--faint); font-weight: 300; }
+  input[type="date"] { cursor: pointer; }
+  input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.65; }
+  input[type="date"]:not(:valid)::-webkit-datetime-edit { color: var(--faint); }
   select {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6467' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
@@ -249,64 +252,85 @@
     cursor: pointer;
   }
 
-  /* Output modal */
-  .overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 50;
-    padding: 24px;
-    overflow-y: auto;
-  }
-  .overlay.show { display: flex; align-items: flex-start; justify-content: center; }
-  .modal {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    max-width: 680px;
-    width: 100%;
-    margin-top: 4vh;
-    overflow: hidden;
-  }
-  .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .modal-head h2 { font-size: 17px; font-weight: 600; }
-  .modal-close { background: none; border: none; color: var(--faint); font-size: 22px; cursor: pointer; padding: 4px 8px; line-height: 1; }
-  .modal-body { padding: 24px; }
-  .card-title-preview { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
-  .card-preview {
-    background: var(--input-bg);
+  /* Attachment previews */
+  .attach-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+  .attach-item { position: relative; width: 84px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .attach-thumb {
+    width: 84px; height: 84px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 16px;
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 12.5px;
-    line-height: 1.6;
-    color: var(--dim);
-    white-space: pre-wrap;
-    max-height: 320px;
-    overflow-y: auto;
-    margin-bottom: 18px;
-  }
-  .modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-  .modal-actions a, .modal-actions button {
-    flex: 1;
-    min-width: 160px;
-    display: inline-flex;
+    background: var(--input-bg);
+    display: flex;
     align-items: center;
     justify-content: center;
-    text-decoration: none;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: 8px;
-    padding: 12px 18px;
-    cursor: pointer;
+    overflow: hidden;
   }
-  .btn-trello { background: #0079bf; border: 1px solid #0079bf; color: #fff; }
-  .btn-copy { background: #fff; border: 1px solid var(--border); color: var(--dim); }
-  .copied { color: #14795a !important; border-color: #14795a !important; }
-  .note { font-size: 12.5px; color: var(--faint); margin-top: 14px; }
+  .attach-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .attach-thumb .ext { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: var(--dim); text-transform: uppercase; }
+  .attach-name {
+    font-size: 11px;
+    color: var(--dim);
+    text-align: center;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .attach-remove {
+    position: absolute;
+    top: -7px; right: -7px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--dim);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  /* Toast feedback */
+  .toast {
+    display: none;
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%);
+    z-index: 60;
+    max-width: 480px;
+    width: calc(100% - 40px);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--cta);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+    padding: 16px 18px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .toast.show { display: flex; }
+  .toast.error { border-left-color: #b93333; }
+  .toast-row { display: flex; align-items: flex-start; gap: 10px; }
+  .toast-msg { flex: 1; font-size: 13.5px; font-weight: 400; color: var(--text); white-space: pre-line; }
+  .toast-close { background: none; border: none; color: var(--faint); font-size: 18px; cursor: pointer; line-height: 1; padding: 0 2px; }
+  .toast-actions { display: flex; gap: 8px; }
+  .toast-actions button {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 8px 14px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--dim);
+  }
+  .toast-actions button.primary { background: var(--cta); border-color: var(--cta); color: #fff; }
 </style>
 </head>
 <body>
@@ -335,7 +359,7 @@
       </div>
       <div class="field">
         <label>Needed by</label>
-        <input type="text" id="f_deadline" placeholder="dd/mm/yyyy">
+        <input type="date" id="f_deadline">
       </div>
     </div>
     <div class="field">
@@ -489,9 +513,9 @@
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v3a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-3"/><polyline points="7 9 12 4 17 9"/><line x1="12" y1="4" x2="12" y2="15"/></svg>
         <span class="main"><b>Click to upload</b> or drag and drop</span>
         <span class="cap">PNG, JPG, PDF up to 10MB per file · attached to the ticket automatically</span>
-        <span id="fileList"></span>
       </label>
-      <input type="file" id="f_files" multiple hidden>
+      <input type="file" id="f_files" multiple hidden accept="image/*,.pdf">
+      <div class="attach-grid" id="attachGrid"></div>
     </div>
   </div>
 
@@ -499,23 +523,12 @@
 
 </div>
 
-<!-- Output modal -->
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <div class="modal-head">
-      <h2>Your Trello card</h2>
-      <button class="modal-close" onclick="closeModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="card-title-preview" id="previewTitle"></div>
-      <div class="card-preview" id="previewBody"></div>
-      <div class="modal-actions">
-        <a class="btn-trello" id="trelloLink" target="_blank" rel="noopener">Open in Trello</a>
-        <button class="btn-copy" id="copyBtn" onclick="copyCard()">Copy card text</button>
-      </div>
-      <p class="note">Open in Trello prefills a new card; pick the board and list there. If the brief is very long the URL may truncate, so use Copy as backup. Trello descriptions render this markdown natively.</p>
-    </div>
+<div class="toast" id="toast">
+  <div class="toast-row">
+    <div class="toast-msg" id="toastMsg"></div>
+    <button class="toast-close" id="toastClose" aria-label="Dismiss">&times;</button>
   </div>
+  <div class="toast-actions" id="toastActions"></div>
 </div>
 
 <script>
@@ -587,7 +600,7 @@
 
     pushBlock('Detail', v('f_detail'));
     push('Requested by', v('f_requester'));
-    push('Needed by', v('f_deadline'));
+    push('Needed by', formatDate(v('f_deadline')));
     push('Sign-off owner', v('f_signoff'));
     push('Priority', priority);
     d.push('---');
@@ -623,26 +636,59 @@
     cardDesc = d.filter((x, i) => !(x === '---' && (i === 0 || d[i-1] === '---'))).join('\n\n');
     if (cardDesc.endsWith('---')) cardDesc = cardDesc.slice(0, -3).trim();
 
-    document.getElementById('previewTitle').textContent = cardTitle;
-    document.getElementById('previewBody').textContent = cardDesc;
-
-    const url = 'https://trello.com/add-card?mode=popup&name=' +
-      encodeURIComponent(cardTitle) + '&desc=' + encodeURIComponent(cardDesc);
-    const link = document.getElementById('trelloLink');
-    link.href = url;
-    link.textContent = 'Open in Trello';
-
     if (trelloConfigured()) {
       createTicket();
     } else {
-      document.getElementById('overlay').classList.add('show');
+      goToPrefillFallback(null);
     }
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const [y, m, dd] = iso.split('-');
+    return dd + '/' + m + '/' + y;
+  }
+
+  // ── Toast feedback ──────────────────────────────────────────────
+  function showToast(kind, message, actions) {
+    const toast = document.getElementById('toast');
+    toast.className = 'toast show' + (kind === 'error' ? ' error' : '');
+    document.getElementById('toastMsg').textContent = message;
+
+    const actionsEl = document.getElementById('toastActions');
+    actionsEl.innerHTML = '';
+    (actions || []).forEach(a => {
+      const btn = document.createElement('button');
+      btn.textContent = a.label;
+      if (a.primary) btn.classList.add('primary');
+      btn.onclick = a.onClick;
+      actionsEl.appendChild(btn);
+    });
+  }
+  function hideToast() { document.getElementById('toast').classList.remove('show'); }
+  document.getElementById('toastClose').addEventListener('click', hideToast);
+
+  function copyCardToClipboard(btn) {
+    navigator.clipboard.writeText(cardTitle + '\n\n' + cardDesc).then(() => {
+      if (btn) { const orig = btn.textContent; btn.textContent = 'Copied ✓'; setTimeout(() => { btn.textContent = orig; }, 1600); }
+    });
+  }
+
+  // No credentials configured: nothing we can do server-side, so hand the user
+  // a copy of the ticket text and a blank Trello card to paste it into.
+  function goToPrefillFallback(reason) {
+    showToast('error', reason || 'Trello isn\'t configured for direct creation.', [
+      { label: 'Copy ticket text', onClick: e => copyCardToClipboard(e.target) },
+      { label: 'Open Trello', primary: true, onClick: () => window.open('https://trello.com/add-card?mode=popup&name=' +
+          encodeURIComponent(cardTitle) + '&desc=' + encodeURIComponent(cardDesc), '_blank') }
+    ]);
   }
 
   async function createTicket() {
     const btn = document.querySelector('.cta-ticket');
     const auth = 'key=' + TRELLO.key + '&token=' + TRELLO.token;
     btn.disabled = true;
+    hideToast();
     try {
       // 1. Resolve the target list by name
       btn.textContent = 'Creating ticket…';
@@ -679,20 +725,19 @@
         } catch (e) { console.error('Attachment upload error for', files[i].name, e); failed.push(files[i].name); }
       }
 
-      // 4. Straight to Trello, no confirmation modal. Only interrupt if something needs manual follow-up.
+      // 4. Success — show a brief confirmation, then take the user straight to the card.
+      const cardUrl = card.shortUrl || card.url;
       if (failed.length) {
-        alert('Ticket created, but these attachments failed to upload — add them to the card manually in Trello:\n\n' + failed.join('\n'));
+        showToast('error', 'Ticket created, but these attachments failed to upload — add them to the card manually:\n' + failed.join('\n'), [
+          { label: 'Open ticket', primary: true, onClick: () => { window.location.href = cardUrl; } }
+        ]);
+      } else {
+        showToast('success', 'Ticket created ✓ Opening in Trello…');
+        setTimeout(() => { window.location.href = cardUrl; }, 900);
       }
-      window.location.href = card.shortUrl || card.url;
     } catch (err) {
-      // Fall back to the manual flow so the brief is never lost
       console.error(err);
-      document.querySelector('.modal-head h2').textContent = 'Ticket creation failed - use manual option';
-      const files = document.getElementById('f_files').files;
-      document.querySelector('.note').textContent = (files.length
-        ? 'Attachments can\'t be carried through the manual flow, add them to the ticket in Trello. '
-        : '') + 'Open in Trello prefills the card; pick the board and list there. Use Copy as backup.';
-      document.getElementById('overlay').classList.add('show');
+      goToPrefillFallback('Couldn\'t create the ticket directly (' + err.message + ').');
     } finally {
       btn.textContent = 'Generate UX Ticket';
       btn.disabled = false;
@@ -704,30 +749,67 @@
     return arr.length ? arr[0] : '';
   }
 
-  function copyCard() {
-    const btn = document.getElementById('copyBtn');
-    navigator.clipboard.writeText(cardTitle + '\n\n' + cardDesc).then(() => {
-      btn.textContent = 'Copied';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'Copy card text'; btn.classList.remove('copied'); }, 1800);
-    });
-  }
-
-  function closeModal() { document.getElementById('overlay').classList.remove('show'); }
-  document.getElementById('overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeModal(); });
-
   function resetForm() {
     document.querySelectorAll('input, textarea').forEach(el => el.value = '');
     document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
     document.querySelectorAll('.chip.on, .radio-card.on, .radio6.on').forEach(el => el.classList.remove('on'));
     document.querySelectorAll('.reveal').forEach(el => el.classList.remove('show'));
-    document.getElementById('fileList').textContent = '';
+    document.getElementById('f_files').value = '';
+    renderAttachments();
   }
 
-  document.getElementById('f_files').addEventListener('change', e => {
-    const names = Array.from(e.target.files).map(f => f.name);
-    document.getElementById('fileList').textContent = names.length ? names.join(', ') : '';
-  });
+  function renderAttachments() {
+    const input = document.getElementById('f_files');
+    const grid = document.getElementById('attachGrid');
+    grid.innerHTML = '';
+    Array.from(input.files).forEach((file, idx) => {
+      const item = document.createElement('div');
+      item.className = 'attach-item';
+
+      const thumb = document.createElement('div');
+      thumb.className = 'attach-thumb';
+      if (file.type.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.onload = () => URL.revokeObjectURL(img.src);
+        thumb.appendChild(img);
+      } else {
+        const ext = document.createElement('span');
+        ext.className = 'ext';
+        ext.textContent = (file.name.split('.').pop() || 'file').slice(0, 4);
+        thumb.appendChild(ext);
+      }
+
+      const name = document.createElement('div');
+      name.className = 'attach-name';
+      name.textContent = file.name;
+      name.title = file.name;
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'attach-remove';
+      remove.innerHTML = '&times;';
+      remove.setAttribute('aria-label', 'Remove ' + file.name);
+      remove.addEventListener('click', e => {
+        e.preventDefault();
+        const dt = new DataTransfer();
+        Array.from(input.files).forEach((f, i) => { if (i !== idx) dt.items.add(f); });
+        input.files = dt.files;
+        renderAttachments();
+      });
+
+      item.appendChild(thumb);
+      item.appendChild(name);
+      item.appendChild(remove);
+      grid.appendChild(item);
+    });
+  }
+
+  document.getElementById('f_files').addEventListener('change', renderAttachments);
+
+  // Clicking anywhere in the date field opens the native picker, not just the icon
+  const dateInput = document.getElementById('f_deadline');
+  dateInput.addEventListener('click', () => { if (dateInput.showPicker) { try { dateInput.showPicker(); } catch (e) {} } });
 
   const drop = document.getElementById('filedrop');
   ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, e => {
