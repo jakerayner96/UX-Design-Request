@@ -574,16 +574,10 @@
   function v(id) { return document.getElementById(id).value.trim(); }
   function lines(id) { return v(id).split('\n').map(s => s.trim()).filter(Boolean); }
 
-  // ── Trello direct creation ─────────────────────────────────────
-  // Add your API key and token to create tickets directly on Generate.
-  // Board and list are already set. Setup: see notes at bottom of this file.
-  const TRELLO = {
-    key: '',      // your API key
-    token: '',    // your token
-    boardId: '699d774274279339e0ae8171',   // UX Board 2026
-    listName: 'Inbox'                      // tickets land at the top of this column
-  };
-  const trelloConfigured = () => TRELLO.key && TRELLO.token && TRELLO.boardId;
+  // ── Trello creation via proxy ────────────────────────────────────
+  // The Worker holds the real Trello key/token server-side; nothing secret
+  // ships to the browser. See worker/index.js in the repo for its source.
+  const PROXY_URL = 'https://ux-design-request-proxy.jakerayner96.workers.dev/create-ticket';
 
   let cardTitle = '', cardDesc = '';
 
@@ -636,11 +630,7 @@
     cardDesc = d.filter((x, i) => !(x === '---' && (i === 0 || d[i-1] === '---'))).join('\n\n');
     if (cardDesc.endsWith('---')) cardDesc = cardDesc.slice(0, -3).trim();
 
-    if (trelloConfigured()) {
-      createTicket();
-    } else {
-      goToPrefillFallback(null);
-    }
+    createTicket();
   }
 
   function formatDate(iso) {
@@ -674,10 +664,10 @@
     });
   }
 
-  // No credentials configured: nothing we can do server-side, so hand the user
-  // a copy of the ticket text and a blank Trello card to paste it into.
+  // Proxy call failed (network/Worker error): hand the user a copy of the ticket
+  // text and a blank Trello card to paste it into.
   function goToPrefillFallback(reason) {
-    showToast('error', reason || 'Trello isn\'t configured for direct creation.', [
+    showToast('error', reason, [
       { label: 'Copy ticket text', onClick: e => copyCardToClipboard(e.target) },
       { label: 'Open Trello', primary: true, onClick: () => window.open('https://trello.com/add-card?mode=popup&name=' +
           encodeURIComponent(cardTitle) + '&desc=' + encodeURIComponent(cardDesc), '_blank') }
@@ -686,54 +676,27 @@
 
   async function createTicket() {
     const btn = document.querySelector('.cta-ticket');
-    const auth = 'key=' + TRELLO.key + '&token=' + TRELLO.token;
     btn.disabled = true;
     hideToast();
+    btn.textContent = 'Creating ticket…';
     try {
-      // 1. Resolve the target list by name
-      btn.textContent = 'Creating ticket…';
-      const lres = await fetch('https://api.trello.com/1/boards/' + TRELLO.boardId + '/lists?' + auth);
-      if (!lres.ok) throw new Error('Board lookup failed: ' + lres.status);
-      const listsData = await lres.json();
-      const want = TRELLO.listName.trim().toLowerCase();
-      const list = listsData.find(l => l.name.trim().toLowerCase() === want)
-                || listsData.find(l => l.name.trim().toLowerCase().includes(want));
-      if (!list) throw new Error('List "' + TRELLO.listName + '" not found on board');
-
-      // 2. Create the card at the top of the list
-      const cres = await fetch('https://api.trello.com/1/cards?' + new URLSearchParams({
-        key: TRELLO.key, token: TRELLO.token,
-        idList: list.id, name: cardTitle, desc: cardDesc, pos: 'top'
-      }), { method: 'POST' });
-      if (!cres.ok) throw new Error('Card creation failed: ' + cres.status);
-      const card = await cres.json();
-
-      // 3. Upload attachments to the card
+      const fd = new FormData();
+      fd.append('name', cardTitle);
+      fd.append('desc', cardDesc);
       const files = document.getElementById('f_files').files;
-      const failed = [];
-      for (let i = 0; i < files.length; i++) {
-        btn.textContent = 'Uploading ' + (i + 1) + ' of ' + files.length + '…';
-        const fd = new FormData();
-        fd.append('file', files[i]);
-        try {
-          const ares = await fetch('https://api.trello.com/1/cards/' + card.id + '/attachments?' + auth,
-            { method: 'POST', body: fd });
-          if (!ares.ok) {
-            console.error('Attachment upload failed for', files[i].name, ares.status, await ares.text().catch(() => ''));
-            failed.push(files[i].name);
-          }
-        } catch (e) { console.error('Attachment upload error for', files[i].name, e); failed.push(files[i].name); }
-      }
+      Array.from(files).forEach(f => fd.append('file', f, f.name));
 
-      // 4. Success — show a brief confirmation, then take the user straight to the card.
-      const cardUrl = card.shortUrl || card.url;
-      if (failed.length) {
-        showToast('error', 'Ticket created, but these attachments failed to upload — add them to the card manually:\n' + failed.join('\n'), [
-          { label: 'Open ticket', primary: true, onClick: () => { window.location.href = cardUrl; } }
+      const res = await fetch(PROXY_URL, { method: 'POST', body: fd });
+      const result = await res.json();
+      if (!res.ok || !result.ok) throw new Error(result.error || ('Request failed: ' + res.status));
+
+      if (result.failed && result.failed.length) {
+        showToast('error', 'Ticket created, but these attachments failed to upload — add them to the card manually:\n' + result.failed.join('\n'), [
+          { label: 'Open ticket', primary: true, onClick: () => { window.location.href = result.url; } }
         ]);
       } else {
         showToast('success', 'Ticket created ✓ Opening in Trello…');
-        setTimeout(() => { window.location.href = cardUrl; }, 900);
+        setTimeout(() => { window.location.href = result.url; }, 900);
       }
     } catch (err) {
       console.error(err);
@@ -830,29 +793,18 @@
   });
 </script>
 <!--
-TRELLO SETUP (one-off, ~5 minutes)
+TRELLO SETUP
 
-1. API key
-   Go to https://trello.com/power-ups/admin while logged in as the account
-   that should own the tickets. Create a new Power-Up (name/workspace only,
-   nothing else needed), then open it and copy the API key.
+The real Trello API key/token live server-side only, as secrets on the
+Cloudflare Worker at worker/index.js (deployed as "ux-design-request-proxy").
+They are never shipped to the browser or committed to this repo.
 
-2. Token
-   On the same page click "Token" (or visit
-   https://trello.com/1/authorize?expiration=never&scope=read,write&response_type=token&key=YOUR_KEY )
-   Approve, copy the token shown.
+To rotate them: `wrangler secret put TRELLO_KEY` / `TRELLO_TOKEN` from the
+worker/ directory (requires `wrangler login` once), then `wrangler deploy`.
 
-3. Paste both into the TRELLO object near the top of the script.
-   The board (UX Board 2026) and column (UX Requests) are already configured;
-   the form resolves the column by name at runtime, so renaming the column in
-   Trello only requires updating TRELLO.listName here.
-
-IMPORTANT: the account that generates the token must be a member of
-UX Board 2026 (use your invite link to add it).
-
-NOTE: anyone who can read this file can read the token and act as that
-Trello account. Use a dedicated bot/service account that only has access
-to this board, not your personal login.
+The board/list the Worker creates cards on is hardcoded as IDLIST in
+worker/index.js (currently the "Inbox" list on UX Board 2026) — update that
+constant if the target list changes. List IDs are stable across renames.
 
 ATTACHMENT LIMITS: Trello caps uploads at 10MB per file on free plans
 (250MB on paid). Larger files will fail and be listed in the confirmation.
