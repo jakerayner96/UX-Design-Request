@@ -31,84 +31,97 @@
     -webkit-font-smoothing: antialiased;
     padding: 48px 20px 80px;
   }
-  .container { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+  .container { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 36px; }
 
-  header { display: flex; flex-direction: column; gap: 18px; }
-  header h1 { font-size: 28px; font-weight: 600; color: var(--text); }
-  header p { font-size: 15px; font-weight: 300; color: #000; }
+  header { display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center; }
+  header h1 { font-size: 20px; font-weight: 600; color: var(--text); }
+  header p { font-size: 13.5px; font-weight: 300; color: var(--dim); }
 
-  .section {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-  .section-title { display: flex; align-items: center; gap: 10px; }
-  .section-title .num {
-    background: var(--cta);
-    color: #fff;
-    font-weight: 700;
-    width: 24px; height: 24px;
-    border-radius: 6px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-  }
-  .section-title .tt {
+  /* Stepper */
+  .stepper { position: relative; }
+  .stepper-track { position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: var(--border); margin: 0 30px; z-index: 0; }
+  .stepper-fill { height: 100%; background: var(--cta); width: 0%; transition: width 0.3s ease; }
+  .stepper-dots { position: relative; display: flex; justify-content: space-between; z-index: 1; }
+  .step-dot { cursor: pointer; }
+  .step-dot .num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--input-bg);
+    border: 2px solid var(--border);
+    color: var(--faint);
     font-size: 13px;
     font-weight: 600;
-    letter-spacing: 1.04px;
-    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
   }
-  .hint { font-size: 15px; font-weight: 300; color: #000; }
+  .step-dot:hover .num { border-color: var(--cta); color: var(--cta); }
+  .step-dot.active .num, .step-dot.done .num { background: var(--cta); border-color: var(--cta); color: #fff; }
+  .step-dot.active:hover .num, .step-dot.done:hover .num { filter: brightness(0.88); }
 
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  .field.gap8 { gap: 8px; }
+  /* Wizard card */
+  .wizard-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 4px 28px rgba(0,0,0,0.07);
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+  .step { display: none; flex-direction: column; gap: 26px; }
+  .step.active { display: flex; animation: stepIn 0.28s ease; }
+  @keyframes stepIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .step-heading { font-size: 23px; font-weight: 700; color: var(--text); text-align: left; }
+  .hint { font-size: 14px; font-weight: 300; color: var(--dim); text-align: left; margin-top: -14px; }
+
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field.gap8 { gap: 10px; }
   label { font-size: 13.5px; font-weight: 400; color: var(--text); }
   label.med { font-weight: 500; }
   .sub { font-size: 12.5px; color: var(--faint); }
   input[type="text"], input[type="date"], textarea, select {
     width: 100%;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 4px;
+    background: var(--input-bg);
+    border: 1.5px solid transparent;
+    border-radius: 8px;
     color: var(--text);
-    padding: 10px 12px;
+    padding: 13px 16px;
     font-size: 14px;
     font-weight: 300;
     font-family: inherit;
+    transition: border-color 0.15s ease, background 0.15s ease;
   }
-  textarea { resize: vertical; min-height: 72px; padding: 12px; }
+  textarea { resize: vertical; min-height: 88px; padding: 14px 16px; }
   .r8 { border-radius: 8px !important; }
-  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--cta); }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--cta); background: #fff; }
   ::placeholder { color: var(--faint); font-weight: 300; }
   input[type="date"] { cursor: pointer; }
   input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.65; }
-  input[type="date"]:not(:valid)::-webkit-datetime-edit { color: var(--faint); }
+  input[type="date"]::-webkit-datetime-edit { color: var(--text); }
+  input[type="date"].empty::-webkit-datetime-edit { color: var(--faint); }
   select {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6467' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 36px;
+    background-position: right 14px center;
+    padding-right: 38px;
     cursor: pointer;
   }
   select:invalid { color: var(--faint); }
 
-  .row { display: flex; gap: 14px; }
+  .row { display: flex; gap: 18px; }
   .row .field { flex: 1; }
-  @media (max-width: 560px) { .row { flex-direction: column; } }
+  @media (max-width: 560px) { .row { flex-direction: column; gap: 26px; } }
 
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
   .chip {
     background: #fff;
     border: 1px solid var(--chip-border);
     border-radius: 42px;
-    padding: 8px 16px;
+    padding: 10px 18px;
     font-size: 14px;
     font-weight: 300;
     letter-spacing: 0.28px;
@@ -125,8 +138,8 @@
   .radio-card {
     background: #fff;
     border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 13px 16px;
+    border-radius: 8px;
+    padding: 18px 20px;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -148,17 +161,17 @@
     border-radius: 50%;
     background: var(--cta);
   }
-  .radio-card .copy { display: flex; flex-direction: column; gap: 4px; }
-  .radio-card strong { font-size: 13.5px; font-weight: 400; color: var(--text); }
-  .radio-card span { font-size: 12px; font-weight: 300; color: #000; }
-  .radio-group { display: flex; flex-direction: column; gap: 10px; }
+  .radio-card .copy { display: flex; flex-direction: column; gap: 6px; }
+  .radio-card strong { font-size: 14px; font-weight: 500; color: var(--text); }
+  .radio-card span:not(.scope-label) { font-size: 12.5px; font-weight: 300; color: #000; }
+  .radio-group { display: flex; flex-direction: column; gap: 14px; }
 
   /* Fit radio cards (section 6 style) */
   .radio6 {
     background: var(--input-bg);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 13px 16px;
+    padding: 16px 18px;
     display: flex;
     align-items: flex-start;
     gap: 12px;
@@ -177,7 +190,7 @@
   .radio6 strong { display: block; font-size: 14px; font-weight: 500; color: var(--text); }
   .radio6 span { font-size: 13px; font-weight: 400; color: var(--dim); }
 
-  .scope-group { display: flex; flex-direction: column; gap: 8px; }
+  .scope-group { display: flex; flex-direction: column; gap: 10px; }
   .scope-label {
     display: inline-block;
     align-self: flex-start;
@@ -191,6 +204,10 @@
   .scope-should { background: rgba(200,140,0,0.12); color: #9a6b00; }
   .scope-could { background: rgba(26,158,110,0.12); color: #14795a; }
   .scope-out { background: rgba(90,100,103,0.12); color: #5a6467; }
+
+  .priority-row { display: flex; align-items: stretch; gap: 10px; }
+  .priority-badge { display: flex; align-items: center; flex-direction: column; justify-content: center; }
+  .priority-text { display: flex; flex-direction: column; gap: 6px; justify-content: center; }
 
   .filedrop {
     display: flex;
@@ -211,46 +228,49 @@
   .filedrop .cap { font-size: 12.5px; font-weight: 300; color: var(--faint); }
   .filedrop span { display: block; color: var(--text); font-weight: 400; font-size: 13px; }
 
-  /* Mid CTA */
+  /* Wizard nav */
+  .wizard-nav { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 8px; }
   .cta-ticket {
     width: 100%;
     height: 50px;
     background: var(--cta);
     color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     font-family: inherit;
-    font-size: 16px;
+    font-size: 15.5px;
     font-weight: 600;
-    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  .cta-ticket:disabled { opacity: 0.65; cursor: not-allowed; }
+  .link-back {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--faint);
     cursor: pointer;
   }
+  .link-back.hidden { display: none; }
 
-  /* Bottom actions */
-  .actions { display: flex; gap: 12px; }
-  .btn-ghost {
-    background: #fff;
+  /* Review step */
+  .review-title { font-size: 16px; font-weight: 600; color: var(--text); }
+  .review-box {
+    background: var(--input-bg);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 12px 22px;
-    font-family: inherit;
-    font-size: 14.5px;
-    font-weight: 500;
+    padding: 16px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
     color: var(--dim);
-    cursor: pointer;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
   }
-  .btn-primary {
-    flex: 1;
-    background: var(--aqua);
-    border: none;
-    border-radius: 8px;
-    padding: 12px 22px;
-    font-family: inherit;
-    font-size: 14.5px;
-    font-weight: 500;
-    color: #fff;
-    cursor: pointer;
-  }
+  .review-attachments { font-size: 13px; color: var(--dim); }
 
   /* Attachment previews */
   .attach-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
@@ -338,188 +358,252 @@
 
   <header>
     <h1>UX Design Request</h1>
-    <p>Please fill in the form below to the best of your ability.<br>This will generate a ticket for you to submit into the UX workflow.</p>
+    <p>Fill this in to raise a ticket into the UX workflow.</p>
   </header>
 
-  <!-- Section 1 · Overview -->
-  <div class="section">
-    <div class="section-title"><span class="num">1</span><span class="tt">OVERVIEW</span></div>
-    <div class="field">
-      <label>Title</label>
-      <input type="text" id="f_title" placeholder="e.g. USP banner optimisation">
-    </div>
-    <div class="field">
-      <label>Detail</label>
-      <textarea id="f_detail" placeholder="Please give a detailed overview of the design request."></textarea>
-    </div>
-    <div class="row">
+  <div class="stepper">
+    <div class="stepper-track"><div class="stepper-fill" id="stepperFill"></div></div>
+    <div class="stepper-dots" id="stepperDots"></div>
+  </div>
+
+  <div class="wizard-card">
+
+    <!-- Step 1 · Overview -->
+    <div class="step" data-step="1">
+      <h2 class="step-heading">Ticket Overview</h2>
       <div class="field">
-        <label>Requested by</label>
-        <input type="text" id="f_requester" placeholder="Name / team">
+        <label>Title</label>
+        <input type="text" id="f_title" placeholder="e.g. USP banner optimisation">
       </div>
       <div class="field">
-        <label>Needed by</label>
-        <input type="date" id="f_deadline">
+        <label>Detail</label>
+        <textarea id="f_detail" placeholder="Please give a detailed overview of the design request."></textarea>
       </div>
-    </div>
-    <div class="field">
-      <label>Sign-off owner</label>
-      <input type="text" id="f_signoff" placeholder="Who approves the final design?">
-    </div>
-    <div class="field">
-      <label>Priority</label>
-      <select id="f_priority" required>
-        <option value="" selected>Select…</option>
-        <option>P1 - Top Priority - Re-prioritise WIP to start as soon as possible</option>
-        <option>P2 - Medium Priority - Plan into BAU workflow</option>
-        <option>P3 - Low Priority - When capacity allows</option>
-        <option>P0 - Highest Priority - Drop everything and work on this now (do not use if not urgent)</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Section 2 · The problem, outcome & measure -->
-  <div class="section">
-    <div class="section-title"><span class="num">2</span><span class="tt">THE PROBLEM, OUTCOME &amp; MEASURE</span></div>
-    <p class="hint">Tell us the problem you're solving or the outcome you want to achieve.</p>
-    <div class="field">
-      <label>Problem we're solving</label>
-      <textarea id="f_problem" placeholder="What's broken, missing, or underperforming? What triggered this request?"></textarea>
-    </div>
-    <div class="field">
-      <label>Outcome you would like to achieve</label>
-      <textarea id="f_outcome" placeholder="What do others do? What does success for us look like?"></textarea>
-    </div>
-    <div class="field">
-      <label>Success measure</label>
-      <input type="text" id="f_success" placeholder="How we'll know it worked, (e.g. conversion rate, engagement rate, AOV, LTV etc.)">
-    </div>
-  </div>
-
-  <!-- Section 3 · Who is it for -->
-  <div class="section">
-    <div class="section-title"><span class="num">3</span><span class="tt">WHO IS IT FOR</span></div>
-    <div class="field">
-      <label>End user / audience</label>
-      <input type="text" id="f_audience" placeholder="Who experiences this?" style="font-size:12px">
-    </div>
-    <div class="field gap8">
-      <label>Brands impacted</label>
-      <div class="chips" id="brands">
-        <div class="chip" data-val="All Brands">All Brands</div>
-        <div class="chip" data-val="Debenhams">Debenhams</div>
-        <div class="chip" data-val="Boohoo">Boohoo</div>
-        <div class="chip" data-val="Pretty Little Thing">Pretty Little Thing</div>
-        <div class="chip" data-val="BoohooMan">BoohooMan</div>
-        <div class="chip" data-val="Karen Millen">Karen Millen</div>
-        <div class="chip" data-val="Other" data-reveals="f_brands_other">Other</div>
-      </div>
-      <input type="text" id="f_brands_other" class="reveal" placeholder="Other...">
-    </div>
-    <div class="field">
-      <label>Regions / markets</label>
-      <input type="text" id="f_regions" placeholder="e.g. UK only, UK + EU, all markets">
-    </div>
-    <div class="field gap8">
-      <label>Platforms</label>
-      <div class="chips single" id="platforms">
-        <div class="chip" data-val="Web">Web</div>
-        <div class="chip" data-val="App">App</div>
-        <div class="chip" data-val="Both">Both</div>
-      </div>
-    </div>
-    <div class="field gap8">
-      <label>Pages / touchpoints</label>
-      <p class="sub">Every page the feature appears on.</p>
-      <div class="chips" id="pages">
-        <div class="chip" data-val="Homepage/Content">Homepage/Content</div>
-        <div class="chip" data-val="PLP">PLP</div>
-        <div class="chip" data-val="PDP">PDP</div>
-        <div class="chip" data-val="Bag">Bag</div>
-        <div class="chip" data-val="Checkout">Checkout</div>
-        <div class="chip" data-val="Account">Account</div>
-        <div class="chip" data-val="Order Confirmation">Order Confirmation</div>
-        <div class="chip" data-val="Email">Email</div>
-        <div class="chip" data-val="Other" data-reveals="f_pages_other">Other</div>
-      </div>
-      <input type="text" id="f_pages_other" class="reveal" placeholder="Other...">
-    </div>
-  </div>
-
-  <!-- Section 4 · UX approach -->
-  <div class="section">
-    <div class="section-title"><span class="num">4</span><span class="tt">UX APPROACH</span></div>
-    <p class="hint">Tells us how you want us to approach this ticket.</p>
-    <div class="radio-group" id="approach">
-      <div class="radio-card" data-val="Deliver">
-        <div class="rb"></div>
-        <div class="copy">
-          <strong>Deliver</strong>
-          <span>We will run with the ticket and propose a solution for review and sign off</span>
+      <div class="row">
+        <div class="field">
+          <label>Requested by</label>
+          <input type="text" id="f_requester" placeholder="Name / team">
+        </div>
+        <div class="field">
+          <label>Needed by</label>
+          <input type="date" id="f_deadline">
         </div>
       </div>
-      <div class="radio-card" data-val="Exploration">
-        <div class="rb"></div>
-        <div class="copy">
-          <strong>Exploration</strong>
-          <span>You've got a problem, you want us to explore design options and provide recommendations</span>
-        </div>
+      <div class="field">
+        <label>Sign-off owner</label>
+        <input type="text" id="f_signoff" placeholder="Who approves the final design?">
       </div>
-      <div class="radio-card" data-val="Collaboration">
-        <div class="rb"></div>
-        <div class="copy">
-          <strong>Collaboration</strong>
-          <span>You want to workshop through something with us before we get into the detail &amp; designs</span>
+      <div class="field gap8">
+        <label>Priority</label>
+        <div class="radio-group" id="priority">
+          <div class="radio-card" data-val="P0 - Highest Priority - Drop everything and work on this now (ONLY USE IF URGENT)">
+            <div class="rb"></div>
+            <div class="copy">
+              <div class="priority-row">
+                <div class="priority-badge"><span class="scope-label scope-must">P0</span></div>
+                <div class="priority-text">
+                  <strong>Highest Priority</strong>
+                  <span>Drop everything and work on this now (ONLY USE IF URGENT)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="radio-card" data-val="P1 - Top Priority - Re-prioritise WIP to start as soon as possible">
+            <div class="rb"></div>
+            <div class="copy">
+              <div class="priority-row">
+                <div class="priority-badge"><span class="scope-label scope-should">P1</span></div>
+                <div class="priority-text">
+                  <strong>Top Priority</strong>
+                  <span>Re-prioritise WIP to start as soon as possible</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="radio-card" data-val="P2 - Medium Priority - Plan into BAU workflow">
+            <div class="rb"></div>
+            <div class="copy">
+              <div class="priority-row">
+                <div class="priority-badge"><span class="scope-label scope-could">P2</span></div>
+                <div class="priority-text">
+                  <strong>Medium Priority</strong>
+                  <span>Plan into BAU workflow</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="radio-card" data-val="P3 - Low Priority - When capacity allows">
+            <div class="rb"></div>
+            <div class="copy">
+              <div class="priority-row">
+                <div class="priority-badge"><span class="scope-label scope-out">P3</span></div>
+                <div class="priority-text">
+                  <strong>Low Priority</strong>
+                  <span>When capacity allows</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Section 5 · Scope -->
-  <div class="section">
-    <div class="section-title"><span class="num">5</span><span class="tt">SCOPE</span></div>
-    <div class="scope-group">
-      <span class="scope-label scope-must">MUST INCLUDE</span>
-      <textarea id="f_must" class="r8" placeholder="Non-negotiable. Delivery blocked without these."></textarea>
+    <!-- Step 2 · The problem, outcome & measure -->
+    <div class="step" data-step="2">
+      <h2 class="step-heading">The Problem, Outcome &amp; Measure</h2>
+      <p class="hint">Tell us the problem you're solving or the outcome you want to achieve.</p>
+      <div class="field">
+        <label>Problem we're solving</label>
+        <textarea id="f_problem" placeholder="What's broken, missing, or underperforming? What triggered this request?"></textarea>
+      </div>
+      <div class="field">
+        <label>Outcome you would like to achieve</label>
+        <textarea id="f_outcome" placeholder="What do others do? What does success for us look like?"></textarea>
+      </div>
+      <div class="field">
+        <label>Success measure</label>
+        <input type="text" id="f_success" placeholder="How we'll know it worked, (e.g. conversion rate, engagement rate, AOV, LTV etc.)">
+      </div>
     </div>
-    <div class="scope-group">
-      <span class="scope-label scope-should">SHOULD INCLUDE</span>
-      <textarea id="f_should" class="r8" placeholder="Important, but we can launch without if pushed."></textarea>
-    </div>
-    <div class="scope-group">
-      <span class="scope-label scope-could">COULD INCLUDE</span>
-      <textarea id="f_could" class="r8" placeholder="Nice to have. First to drop if constrained."></textarea>
-    </div>
-    <div class="scope-group">
-      <span class="scope-label scope-out">STRICTLY OUT OF SCOPE</span>
-      <textarea id="f_out" class="r8" placeholder="To avoid scope creep and excess UX effort."></textarea>
-    </div>
-  </div>
 
-  <!-- Section 6 · Inputs & constraints -->
-  <div class="section">
-    <div class="section-title"><span class="num">6</span><span class="tt">INPUTS &amp; CONSTRAINTS</span></div>
-    <div class="field">
-      <label class="med">Inputs you'll provide</label>
-      <textarea id="f_inputs" class="r8" placeholder="Copy, assets, guidelines, benchmarking links etc..."></textarea>
+    <!-- Step 3 · Who is it for -->
+    <div class="step" data-step="3">
+      <h2 class="step-heading">Who Is It For</h2>
+      <div class="field">
+        <label>End user / audience</label>
+        <input type="text" id="f_audience" placeholder="Who experiences this?">
+      </div>
+      <div class="field gap8">
+        <label>Brands impacted</label>
+        <div class="chips" id="brands">
+          <div class="chip" data-val="All Brands">All Brands</div>
+          <div class="chip" data-val="Debenhams">Debenhams</div>
+          <div class="chip" data-val="Boohoo">Boohoo</div>
+          <div class="chip" data-val="Pretty Little Thing">Pretty Little Thing</div>
+          <div class="chip" data-val="BoohooMan">BoohooMan</div>
+          <div class="chip" data-val="Karen Millen">Karen Millen</div>
+          <div class="chip" data-val="Other" data-reveals="f_brands_other">Other</div>
+        </div>
+        <input type="text" id="f_brands_other" class="reveal" placeholder="Other...">
+      </div>
+      <div class="field">
+        <label>Regions / markets</label>
+        <input type="text" id="f_regions" placeholder="e.g. UK only, UK + EU, all markets">
+      </div>
+      <div class="field gap8">
+        <label>Platforms</label>
+        <div class="chips single" id="platforms">
+          <div class="chip" data-val="Web">Web</div>
+          <div class="chip" data-val="App">App</div>
+          <div class="chip" data-val="Both">Both</div>
+        </div>
+      </div>
+      <div class="field gap8">
+        <label>Pages / touchpoints</label>
+        <p class="sub">Every page the feature appears on.</p>
+        <div class="chips" id="pages">
+          <div class="chip" data-val="Homepage/Content">Homepage/Content</div>
+          <div class="chip" data-val="PLP">PLP</div>
+          <div class="chip" data-val="PDP">PDP</div>
+          <div class="chip" data-val="Bag">Bag</div>
+          <div class="chip" data-val="Checkout">Checkout</div>
+          <div class="chip" data-val="Account">Account</div>
+          <div class="chip" data-val="Order Confirmation">Order Confirmation</div>
+          <div class="chip" data-val="Email">Email</div>
+          <div class="chip" data-val="Other" data-reveals="f_pages_other">Other</div>
+        </div>
+        <input type="text" id="f_pages_other" class="reveal" placeholder="Other...">
+      </div>
     </div>
-    <div class="field">
-      <label class="med">Constraints (technical, legal, commercial, accessibility)</label>
-      <textarea id="f_constraints" class="r8" placeholder="Platform limits, compliance requirements, partner contractual obligations, dependencies on dev or other teams…"></textarea>
-    </div>
-    <div class="field">
-      <label class="med">Attachments (screenshots, briefs, assets)</label>
-      <label class="filedrop" for="f_files" id="filedrop">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v3a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-3"/><polyline points="7 9 12 4 17 9"/><line x1="12" y1="4" x2="12" y2="15"/></svg>
-        <span class="main"><b>Click to upload</b> or drag and drop</span>
-        <span class="cap">PNG, JPG, PDF up to 10MB per file · attached to the ticket automatically</span>
-      </label>
-      <input type="file" id="f_files" multiple hidden accept="image/*,.pdf">
-      <div class="attach-grid" id="attachGrid"></div>
-    </div>
-  </div>
 
-  <button class="cta-ticket" onclick="generateCard()">Generate UX Ticket</button>
+    <!-- Step 4 · UX approach -->
+    <div class="step" data-step="4">
+      <h2 class="step-heading">UX Approach</h2>
+      <p class="hint">Tells us how you want us to approach this ticket.</p>
+      <div class="radio-group" id="approach">
+        <div class="radio-card" data-val="Deliver">
+          <div class="rb"></div>
+          <div class="copy">
+            <strong>Deliver</strong>
+            <span>We will run with the ticket and propose a solution for review and sign off</span>
+          </div>
+        </div>
+        <div class="radio-card" data-val="Exploration">
+          <div class="rb"></div>
+          <div class="copy">
+            <strong>Exploration</strong>
+            <span>You've got a problem, you want us to explore design options and provide recommendations</span>
+          </div>
+        </div>
+        <div class="radio-card" data-val="Collaboration">
+          <div class="rb"></div>
+          <div class="copy">
+            <strong>Collaboration</strong>
+            <span>You want to workshop through something with us before we get into the detail &amp; designs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 · Scope -->
+    <div class="step" data-step="5">
+      <h2 class="step-heading">Scope</h2>
+      <div class="scope-group">
+        <span class="scope-label scope-must">MUST INCLUDE</span>
+        <textarea id="f_must" class="r8" placeholder="Non-negotiable. Delivery blocked without these."></textarea>
+      </div>
+      <div class="scope-group">
+        <span class="scope-label scope-should">SHOULD INCLUDE</span>
+        <textarea id="f_should" class="r8" placeholder="Important, but we can launch without if pushed."></textarea>
+      </div>
+      <div class="scope-group">
+        <span class="scope-label scope-could">COULD INCLUDE</span>
+        <textarea id="f_could" class="r8" placeholder="Nice to have. First to drop if constrained."></textarea>
+      </div>
+      <div class="scope-group">
+        <span class="scope-label scope-out">STRICTLY OUT OF SCOPE</span>
+        <textarea id="f_out" class="r8" placeholder="To avoid scope creep and excess UX effort."></textarea>
+      </div>
+    </div>
+
+    <!-- Step 6 · Inputs & constraints -->
+    <div class="step" data-step="6">
+      <h2 class="step-heading">Inputs &amp; Constraints</h2>
+      <div class="field">
+        <label class="med">Inputs you'll provide</label>
+        <textarea id="f_inputs" class="r8" placeholder="Copy, assets, guidelines, benchmarking links etc..."></textarea>
+      </div>
+      <div class="field">
+        <label class="med">Constraints (technical, legal, commercial, accessibility)</label>
+        <textarea id="f_constraints" class="r8" placeholder="Platform limits, compliance requirements, partner contractual obligations, dependencies on dev or other teams…"></textarea>
+      </div>
+      <div class="field">
+        <label class="med">Attachments (screenshots, briefs, assets)</label>
+        <label class="filedrop" for="f_files" id="filedrop">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v3a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-3"/><polyline points="7 9 12 4 17 9"/><line x1="12" y1="4" x2="12" y2="15"/></svg>
+          <span class="main"><b>Click to upload</b> or drag and drop</span>
+          <span class="cap">PNG, JPG, PDF up to 10MB per file · attached to the ticket automatically</span>
+        </label>
+        <input type="file" id="f_files" multiple hidden accept="image/*,.pdf">
+        <div class="attach-grid" id="attachGrid"></div>
+      </div>
+    </div>
+
+    <!-- Step 7 · Review -->
+    <div class="step" data-step="7">
+      <h2 class="step-heading">Review your request</h2>
+      <p class="hint">Here's everything you've told us — check it over before we create the ticket.</p>
+      <div class="review-title" id="reviewTitle"></div>
+      <div class="review-box" id="reviewBody"></div>
+      <div class="review-attachments" id="reviewAttachments"></div>
+    </div>
+
+    <div class="wizard-nav">
+      <button class="cta-ticket" id="nextBtn" onclick="goNext()">Next →</button>
+      <button class="link-back hidden" id="backBtn" onclick="goBack()">← Back</button>
+    </div>
+
+  </div>
 
 </div>
 
@@ -554,7 +638,7 @@
   });
 
   // Radio card groups
-  ['approach'].forEach(id => {
+  ['approach', 'priority'].forEach(id => {
     const group = document.getElementById(id);
     group.querySelectorAll('[data-val]').forEach(card => {
       card.addEventListener('click', () => {
@@ -581,9 +665,9 @@
 
   let cardTitle = '', cardDesc = '';
 
-  function generateCard() {
+  function buildCardText() {
     const title = v('f_title') || 'Untitled design request';
-    const priority = v('f_priority');
+    const priority = getRadio('priority');
     const pShort = priority ? priority.split(' - ')[0] : '';
     cardTitle = (pShort ? '[' + pShort + '] ' : '') + title;
 
@@ -629,9 +713,70 @@
 
     cardDesc = d.filter((x, i) => !(x === '---' && (i === 0 || d[i-1] === '---'))).join('\n\n');
     if (cardDesc.endsWith('---')) cardDesc = cardDesc.slice(0, -3).trim();
+  }
 
+  function generateCard() {
+    buildCardText();
     createTicket();
   }
+
+  // ── Wizard step controller ───────────────────────────────────────
+  const TOTAL_STEPS = document.querySelectorAll('.step').length;
+  let currentStep = 1;
+
+  function renderStepper() {
+    const dots = document.getElementById('stepperDots');
+    dots.innerHTML = '';
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'step-dot' + (i === currentStep ? ' active' : i < currentStep ? ' done' : '');
+      dot.innerHTML = '<span class="num">' + i + '</span>';
+      dot.addEventListener('click', () => showStep(i));
+      dots.appendChild(dot);
+    }
+    document.getElementById('stepperFill').style.width = ((currentStep - 1) / (TOTAL_STEPS - 1) * 100) + '%';
+  }
+
+  function updateNav() {
+    document.getElementById('backBtn').classList.toggle('hidden', currentStep === 1);
+    const nextBtn = document.getElementById('nextBtn');
+    if (currentStep === TOTAL_STEPS) {
+      nextBtn.textContent = 'Generate UX Ticket';
+      nextBtn.onclick = generateCard;
+    } else if (currentStep === TOTAL_STEPS - 1) {
+      nextBtn.textContent = 'Review →';
+      nextBtn.onclick = goNext;
+    } else {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = goNext;
+    }
+  }
+
+  function renderReview() {
+    buildCardText();
+    document.getElementById('reviewTitle').textContent = cardTitle;
+    document.getElementById('reviewBody').textContent = cardDesc;
+    const files = document.getElementById('f_files').files;
+    document.getElementById('reviewAttachments').textContent = files.length
+      ? files.length + ' attachment' + (files.length > 1 ? 's' : '') + ': ' + Array.from(files).map(f => f.name).join(', ')
+      : 'No attachments added.';
+  }
+
+  function showStep(n) {
+    currentStep = n;
+    document.querySelectorAll('.step').forEach(el => {
+      el.classList.toggle('active', Number(el.dataset.step) === n);
+    });
+    renderStepper();
+    updateNav();
+    if (n === TOTAL_STEPS) renderReview();
+    document.querySelector('.wizard-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function goNext() { if (currentStep < TOTAL_STEPS) showStep(currentStep + 1); }
+  function goBack() { if (currentStep > 1) showStep(currentStep - 1); }
+
+  showStep(1);
 
   function formatDate(iso) {
     if (!iso) return '';
@@ -719,6 +864,7 @@
     document.querySelectorAll('.reveal').forEach(el => el.classList.remove('show'));
     document.getElementById('f_files').value = '';
     renderAttachments();
+    showStep(1);
   }
 
   function renderAttachments() {
@@ -773,6 +919,12 @@
   // Clicking anywhere in the date field opens the native picker, not just the icon
   const dateInput = document.getElementById('f_deadline');
   dateInput.addEventListener('click', () => { if (dateInput.showPicker) { try { dateInput.showPicker(); } catch (e) {} } });
+
+  // Match the empty dd/mm/yyyy placeholder to the same faint colour as other placeholders
+  const toggleDateEmpty = () => dateInput.classList.toggle('empty', !dateInput.value);
+  dateInput.addEventListener('input', toggleDateEmpty);
+  dateInput.addEventListener('change', toggleDateEmpty);
+  toggleDateEmpty();
 
   const drop = document.getElementById('filedrop');
   ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, e => {
