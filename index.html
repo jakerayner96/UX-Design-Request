@@ -34,15 +34,38 @@
   .container { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 36px; }
 
   header { display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center; }
-  header h1 { font-size: 20px; font-weight: 600; color: var(--text); }
-  header p { font-size: 13.5px; font-weight: 300; color: var(--dim); }
+
+  .board-link {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #0079bf;
+    border: 1px solid #0079bf;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+    opacity: 0.82;
+    transition: opacity 0.15s ease;
+  }
+  .board-link:hover { opacity: 1; }
+  .board-link svg { flex-shrink: 0; width: 13px; height: 13px; }
+  @media (max-width: 640px) { .board-link { position: static; margin: 0 auto 8px; } }
+  header h1 { font-size: 30px; font-weight: 700; color: var(--text); }
+  header p { font-size: 14px; font-weight: 300; color: var(--text); }
 
   /* Stepper */
   .stepper { position: relative; }
-  .stepper-track { position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: var(--border); margin: 0 30px; z-index: 0; }
+  .stepper-track { position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: var(--border); z-index: 0; }
   .stepper-fill { height: 100%; background: var(--cta); width: 0%; transition: width 0.3s ease; }
-  .stepper-dots { position: relative; display: flex; justify-content: space-between; z-index: 1; }
-  .step-dot { cursor: pointer; }
+  .stepper-dots { position: relative; display: flex; z-index: 1; }
+  .step-dot { cursor: pointer; display: flex; flex: 1 1 0; min-width: 0; flex-direction: column; align-items: center; gap: 8px; }
   .step-dot .num {
     width: 32px; height: 32px;
     border-radius: 50%;
@@ -56,7 +79,18 @@
     justify-content: center;
     transition: all 0.2s ease;
   }
+  .step-dot .lbl {
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--faint);
+    text-align: center;
+    white-space: nowrap;
+    line-height: 1.25;
+  }
   .step-dot:hover .num { border-color: var(--cta); color: var(--cta); }
+  .step-dot.active .lbl { color: var(--cta); font-weight: 600; }
+  .step-dot.done .lbl { color: var(--dim); }
+  @media (max-width: 680px) { .step-dot .lbl { display: none; } }
   .step-dot.active .num, .step-dot.done .num { background: var(--cta); border-color: var(--cta); color: #fff; }
   .step-dot.active:hover .num, .step-dot.done:hover .num { filter: brightness(0.88); }
 
@@ -354,11 +388,15 @@
 </style>
 </head>
 <body>
+<a class="board-link" href="https://trello.com/invite/b/699d774274279339e0ae8171/ATTI42c32c3611d1e8b077502b3d6f4b6acfFE19408E/ux-board-2026" target="_blank" rel="noopener">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="1" y="1" width="22" height="22" rx="5" fill="#fff" fill-opacity="0.001"/><rect x="4" y="4" width="7" height="16" rx="1.6" fill="#fff"/><rect x="13" y="4" width="7" height="10" rx="1.6" fill="#fff"/></svg>
+  View UX Workflow
+</a>
 <div class="container">
 
   <header>
     <h1>UX Design Request</h1>
-    <p>Fill this in to raise a ticket into the UX workflow.</p>
+    <p>Please fill in the form below to the best of your ability.<br>This will automatically generate and submit a ticket to the UX Workflow Trello board.</p>
   </header>
 
   <div class="stepper">
@@ -370,39 +408,39 @@
 
     <!-- Step 1 · Overview -->
     <div class="step" data-step="1">
-      <h2 class="step-heading">Ticket Overview</h2>
+      <h2 class="step-heading">Overview</h2>
       <div class="field">
         <label>Title</label>
         <input type="text" id="f_title" placeholder="e.g. USP banner optimisation">
       </div>
       <div class="field">
-        <label>Detail</label>
-        <textarea id="f_detail" placeholder="Please give a detailed overview of the design request."></textarea>
+        <label>Description</label>
+        <textarea id="f_detail" placeholder="Please provide a brief description of the ticket request. You can input more detail later in the form"></textarea>
       </div>
       <div class="row">
         <div class="field">
-          <label>Requested by</label>
-          <input type="text" id="f_requester" placeholder="Name / team">
+          <label>Requested By</label>
+          <input type="text" id="f_requester" placeholder="Name and team">
         </div>
         <div class="field">
-          <label>Needed by</label>
+          <label>Needed By</label>
           <input type="date" id="f_deadline">
         </div>
       </div>
       <div class="field">
-        <label>Sign-off owner</label>
+        <label>Sign-Off Owner</label>
         <input type="text" id="f_signoff" placeholder="Who approves the final design?">
       </div>
       <div class="field gap8">
         <label>Priority</label>
         <div class="radio-group" id="priority">
-          <div class="radio-card" data-val="P0 - Highest Priority - Drop everything and work on this now (ONLY USE IF URGENT)">
+          <div class="radio-card" data-val="P0 - Do It Now - Drop everything and work on this now (ONLY USE IF URGENT)">
             <div class="rb"></div>
             <div class="copy">
               <div class="priority-row">
                 <div class="priority-badge"><span class="scope-label scope-must">P0</span></div>
                 <div class="priority-text">
-                  <strong>Highest Priority</strong>
+                  <strong>Do It Now</strong>
                   <span>Drop everything and work on this now (ONLY USE IF URGENT)</span>
                 </div>
               </div>
@@ -420,13 +458,13 @@
               </div>
             </div>
           </div>
-          <div class="radio-card" data-val="P2 - Medium Priority - Plan into BAU workflow">
+          <div class="radio-card" data-val="P2 - Normal Priority - Plan into BAU workflow">
             <div class="rb"></div>
             <div class="copy">
               <div class="priority-row">
                 <div class="priority-badge"><span class="scope-label scope-could">P2</span></div>
                 <div class="priority-text">
-                  <strong>Medium Priority</strong>
+                  <strong>Normal Priority</strong>
                   <span>Plan into BAU workflow</span>
                 </div>
               </div>
@@ -449,32 +487,76 @@
     </div>
 
     <!-- Step 2 · The problem, outcome & measure -->
-    <div class="step" data-step="2">
+    <div class="step" data-step="2" data-label="Details">
       <h2 class="step-heading">The Problem, Outcome &amp; Measure</h2>
       <p class="hint">Tell us the problem you're solving or the outcome you want to achieve.</p>
       <div class="field">
-        <label>Problem we're solving</label>
+        <label>Problem We're Solving</label>
         <textarea id="f_problem" placeholder="What's broken, missing, or underperforming? What triggered this request?"></textarea>
       </div>
       <div class="field">
-        <label>Outcome you would like to achieve</label>
+        <label>Outcome You Would Like To Achieve</label>
         <textarea id="f_outcome" placeholder="What do others do? What does success for us look like?"></textarea>
       </div>
       <div class="field">
-        <label>Success measure</label>
+        <label>Success Measure</label>
         <input type="text" id="f_success" placeholder="How we'll know it worked, (e.g. conversion rate, engagement rate, AOV, LTV etc.)">
       </div>
     </div>
 
-    <!-- Step 3 · Who is it for -->
+    <!-- Step 3 · Scope -->
     <div class="step" data-step="3">
+      <h2 class="step-heading">Scope</h2>
+      <div class="scope-group">
+        <span class="scope-label scope-must">MUST INCLUDE</span>
+        <textarea id="f_must" class="r8" placeholder="Non-negotiable. Delivery blocked without these."></textarea>
+      </div>
+      <div class="scope-group">
+        <span class="scope-label scope-should">SHOULD INCLUDE</span>
+        <textarea id="f_should" class="r8" placeholder="Important, but we can launch without if pushed."></textarea>
+      </div>
+      <div class="scope-group">
+        <span class="scope-label scope-could">COULD INCLUDE</span>
+        <textarea id="f_could" class="r8" placeholder="Nice to have. First to drop if constrained."></textarea>
+      </div>
+      <div class="scope-group">
+        <span class="scope-label scope-out">STRICTLY OUT OF SCOPE</span>
+        <textarea id="f_out" class="r8" placeholder="To avoid scope creep and excess UX effort."></textarea>
+      </div>
+    </div>
+
+    <!-- Step 4 · Inputs & constraints -->
+    <div class="step" data-step="4" data-label="More Info">
+      <h2 class="step-heading">Inputs &amp; Constraints</h2>
+      <div class="field">
+        <label class="med">Inputs You'll Provide</label>
+        <textarea id="f_inputs" class="r8" placeholder="Copy, assets, guidelines, benchmarking links etc..."></textarea>
+      </div>
+      <div class="field">
+        <label class="med">Constraints (Technical, Legal, Commercial, Accessibility)</label>
+        <textarea id="f_constraints" class="r8" placeholder="Platform limits, compliance requirements, partner contractual obligations, dependencies on dev or other teams…"></textarea>
+      </div>
+      <div class="field">
+        <label class="med">Attachments (Screenshots, Briefs, Assets)</label>
+        <label class="filedrop" for="f_files" id="filedrop">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v3a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-3"/><polyline points="7 9 12 4 17 9"/><line x1="12" y1="4" x2="12" y2="15"/></svg>
+          <span class="main"><b>Click to upload</b> or drag and drop</span>
+          <span class="cap">PNG, JPG, PDF up to 10MB per file · attached to the ticket automatically</span>
+        </label>
+        <input type="file" id="f_files" multiple hidden accept="image/*,.pdf">
+        <div class="attach-grid" id="attachGrid"></div>
+      </div>
+    </div>
+
+    <!-- Step 5 · Who is it for -->
+    <div class="step" data-step="5">
       <h2 class="step-heading">Who Is It For</h2>
       <div class="field">
-        <label>End user / audience</label>
+        <label>End User / Audience</label>
         <input type="text" id="f_audience" placeholder="Who experiences this?">
       </div>
       <div class="field gap8">
-        <label>Brands impacted</label>
+        <label>Brands Impacted</label>
         <div class="chips" id="brands">
           <div class="chip" data-val="All Brands">All Brands</div>
           <div class="chip" data-val="Debenhams">Debenhams</div>
@@ -487,7 +569,7 @@
         <input type="text" id="f_brands_other" class="reveal" placeholder="Other...">
       </div>
       <div class="field">
-        <label>Regions / markets</label>
+        <label>Regions / Markets</label>
         <input type="text" id="f_regions" placeholder="e.g. UK only, UK + EU, all markets">
       </div>
       <div class="field gap8">
@@ -499,7 +581,7 @@
         </div>
       </div>
       <div class="field gap8">
-        <label>Pages / touchpoints</label>
+        <label>Pages / Touchpoints</label>
         <p class="sub">Every page the feature appears on.</p>
         <div class="chips" id="pages">
           <div class="chip" data-val="Homepage/Content">Homepage/Content</div>
@@ -516,8 +598,8 @@
       </div>
     </div>
 
-    <!-- Step 4 · UX approach -->
-    <div class="step" data-step="4">
+    <!-- Step 6 · UX approach -->
+    <div class="step" data-step="6">
       <h2 class="step-heading">UX Approach</h2>
       <p class="hint">Tells us how you want us to approach this ticket.</p>
       <div class="radio-group" id="approach">
@@ -545,52 +627,8 @@
       </div>
     </div>
 
-    <!-- Step 5 · Scope -->
-    <div class="step" data-step="5">
-      <h2 class="step-heading">Scope</h2>
-      <div class="scope-group">
-        <span class="scope-label scope-must">MUST INCLUDE</span>
-        <textarea id="f_must" class="r8" placeholder="Non-negotiable. Delivery blocked without these."></textarea>
-      </div>
-      <div class="scope-group">
-        <span class="scope-label scope-should">SHOULD INCLUDE</span>
-        <textarea id="f_should" class="r8" placeholder="Important, but we can launch without if pushed."></textarea>
-      </div>
-      <div class="scope-group">
-        <span class="scope-label scope-could">COULD INCLUDE</span>
-        <textarea id="f_could" class="r8" placeholder="Nice to have. First to drop if constrained."></textarea>
-      </div>
-      <div class="scope-group">
-        <span class="scope-label scope-out">STRICTLY OUT OF SCOPE</span>
-        <textarea id="f_out" class="r8" placeholder="To avoid scope creep and excess UX effort."></textarea>
-      </div>
-    </div>
-
-    <!-- Step 6 · Inputs & constraints -->
-    <div class="step" data-step="6">
-      <h2 class="step-heading">Inputs &amp; Constraints</h2>
-      <div class="field">
-        <label class="med">Inputs you'll provide</label>
-        <textarea id="f_inputs" class="r8" placeholder="Copy, assets, guidelines, benchmarking links etc..."></textarea>
-      </div>
-      <div class="field">
-        <label class="med">Constraints (technical, legal, commercial, accessibility)</label>
-        <textarea id="f_constraints" class="r8" placeholder="Platform limits, compliance requirements, partner contractual obligations, dependencies on dev or other teams…"></textarea>
-      </div>
-      <div class="field">
-        <label class="med">Attachments (screenshots, briefs, assets)</label>
-        <label class="filedrop" for="f_files" id="filedrop">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v3a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-3"/><polyline points="7 9 12 4 17 9"/><line x1="12" y1="4" x2="12" y2="15"/></svg>
-          <span class="main"><b>Click to upload</b> or drag and drop</span>
-          <span class="cap">PNG, JPG, PDF up to 10MB per file · attached to the ticket automatically</span>
-        </label>
-        <input type="file" id="f_files" multiple hidden accept="image/*,.pdf">
-        <div class="attach-grid" id="attachGrid"></div>
-      </div>
-    </div>
-
     <!-- Step 7 · Review -->
-    <div class="step" data-step="7">
+    <div class="step" data-step="7" data-label="Review">
       <h2 class="step-heading">Review your request</h2>
       <p class="hint">Here's everything you've told us — check it over before we create the ticket.</p>
       <div class="review-title" id="reviewTitle"></div>
@@ -676,7 +714,7 @@
     const pushBlock = (label, val) => { if (val) d.push('**' + label + '**\n' + val); };
     const pushList = (label, arr) => { if (arr.length) d.push('**' + label + '**\n' + arr.map(x => '- ' + x).join('\n')); };
 
-    pushBlock('Detail', v('f_detail'));
+    pushBlock('Description', v('f_detail'));
     push('Requested by', v('f_requester'));
     push('Needed by', formatDate(v('f_deadline')));
     push('Sign-off owner', v('f_signoff'));
@@ -728,13 +766,16 @@
     const dots = document.getElementById('stepperDots');
     dots.innerHTML = '';
     for (let i = 1; i <= TOTAL_STEPS; i++) {
+      const stepEl = document.querySelector('.step[data-step="' + i + '"]');
+      const label = stepEl ? (stepEl.dataset.label || stepEl.querySelector('.step-heading').textContent) : '';
       const dot = document.createElement('div');
       dot.className = 'step-dot' + (i === currentStep ? ' active' : i < currentStep ? ' done' : '');
-      dot.innerHTML = '<span class="num">' + i + '</span>';
+      dot.innerHTML = '<span class="num">' + i + '</span><span class="lbl">' + label + '</span>';
       dot.addEventListener('click', () => showStep(i));
       dots.appendChild(dot);
     }
     document.getElementById('stepperFill').style.width = ((currentStep - 1) / (TOTAL_STEPS - 1) * 100) + '%';
+    document.querySelector('.stepper-track').style.margin = '0 ' + (50 / TOTAL_STEPS) + '%';
   }
 
   function updateNav() {
