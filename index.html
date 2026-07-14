@@ -619,6 +619,7 @@
   function v(id) { return document.getElementById(id).value.trim(); }
 
   let cardTitle = '', cardDesc = '';
+  let cardFields = {};
 
   function buildCardText() {
     const title = v('f_title') || 'Untitled design request';
@@ -630,17 +631,20 @@
     const push = (label, val) => { if (val) d.push('**' + label + ':** ' + val); };
     const pushBlock = (label, val) => { if (val) d.push('**' + label + '**\n' + val); };
 
+    const brands = getChips('brands').filter(x => x !== 'Other');
+    if (v('f_brands_other')) brands.push(v('f_brands_other'));
+    const pages = getChips('pages').filter(x => x !== 'Other');
+    if (v('f_pages_other')) pages.push(v('f_pages_other'));
+    const platforms = getRadioLikeChips('platforms');
+    const approach = getRadio('approach');
+
     pushBlock('Description', v('f_detail'));
     push('Requested by', v('f_requester'));
     push('Deadline', formatDate(v('f_deadline')));
     push('Sign-off owner', v('f_signoff'));
     push('Priority', priority);
-    const brands = getChips('brands').filter(x => x !== 'Other');
-    if (v('f_brands_other')) brands.push(v('f_brands_other'));
     push('Brands impacted', brands.join(', '));
-    push('Platforms', getRadioLikeChips('platforms'));
-    const pages = getChips('pages').filter(x => x !== 'Other');
-    if (v('f_pages_other')) pages.push(v('f_pages_other'));
+    push('Platforms', platforms);
     push('Pages / touchpoints', pages.join(', '));
     d.push('---');
 
@@ -649,10 +653,26 @@
     push('Success measure', v('f_success'));
     d.push('---');
 
-    push('UX approach', getRadio('approach'));
+    push('UX approach', approach);
 
     cardDesc = d.filter((x, i) => !(x === '---' && (i === 0 || d[i-1] === '---'))).join('\n\n');
     if (cardDesc.endsWith('---')) cardDesc = cardDesc.slice(0, -3).trim();
+
+    cardFields = {
+      title: cardTitle,
+      description: v('f_detail'),
+      requester: v('f_requester'),
+      deadline: formatDate(v('f_deadline')),
+      signoff: v('f_signoff'),
+      priority: priority,
+      brands: brands.join(', '),
+      platforms: platforms,
+      pages: pages.join(', '),
+      problem: v('f_problem'),
+      outcome: v('f_outcome'),
+      success: v('f_success'),
+      approach: approach,
+    };
   }
 
   // ── Wizard step controller ───────────────────────────────────────
@@ -739,8 +759,22 @@
   function hideToast() { document.getElementById('toast').classList.remove('show'); }
   document.getElementById('toastClose').addEventListener('click', hideToast);
 
+  const LOG_TICKET_URL = 'https://ux-design-request-proxy.jakerayner96.workers.dev/log-ticket';
+  let ticketLogged = false;
+
+  function logTicket() {
+    if (ticketLogged) return;
+    ticketLogged = true;
+    fetch(LOG_TICKET_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cardFields),
+    }).catch(err => console.error('Backlog logging failed:', err));
+  }
+
   function copyTicket() {
     hideToast();
+    logTicket();
     navigator.clipboard.writeText(cardTitle + '\n\n' + cardDesc).then(() => {
       showToast('success', 'Copied ✓ Paste this into a new card on the UX Workflow Trello board, then attach any files there.');
     }, () => {
@@ -769,6 +803,7 @@
     document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
     document.querySelectorAll('.chip.on, .radio-card.on, .radio6.on').forEach(el => el.classList.remove('on'));
     document.querySelectorAll('.reveal').forEach(el => el.classList.remove('show'));
+    ticketLogged = false;
     showStep(1);
   }
 
@@ -783,10 +818,15 @@
   toggleDateEmpty();
 </script>
 <!--
-No ticket data is sent anywhere else — the Worker doesn't talk to Trello or
-any AI service. Tickets are created manually: copy the generated card text
-and paste it into a new card on the Trello board, then attach any files
-there directly.
+Tickets are created manually in Trello: copy the generated card text and
+paste it into a new card on the Trello board, then attach any files there
+directly.
+
+Every "Copy Ticket" click also logs the ticket's fields to a Google Sheet via
+the Worker's /log-ticket route, which forwards to a Google Apps Script Web
+App holding the actual sheet — see sheets-logger/README.md for setup. The
+Apps Script URL lives server-side only, as the SHEETS_WEBHOOK_URL secret on
+the Worker; it's never shipped to the browser or committed to this repo.
 -->
 
 </body>
