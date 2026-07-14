@@ -129,6 +129,7 @@
     transition: border-color 0.15s ease, background 0.15s ease;
   }
   textarea { resize: vertical; min-height: 88px; padding: 14px 16px; }
+  textarea.lg { min-height: 160px; }
   .r8 { border-radius: 8px !important; }
   input:focus, textarea:focus, select:focus { outline: none; border-color: var(--cta); background: #fff; }
   ::placeholder { color: var(--faint); font-weight: 300; }
@@ -414,21 +415,7 @@
       </div>
       <div class="field">
         <label>Description</label>
-        <textarea id="f_detail" placeholder="Please provide a brief description of the ticket request. You can input more detail later in the form"></textarea>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Requested By</label>
-          <input type="text" id="f_requester" placeholder="Name and team">
-        </div>
-        <div class="field">
-          <label>Needed By</label>
-          <input type="date" id="f_deadline">
-        </div>
-      </div>
-      <div class="field">
-        <label>Sign-Off Owner</label>
-        <input type="text" id="f_signoff" placeholder="Who approves the final design?">
+        <textarea id="f_detail" class="lg" placeholder="Please provide a brief description of the ticket request. You can input more detail later in the form"></textarea>
       </div>
       <div class="field gap8">
         <label>Priority</label>
@@ -519,6 +506,20 @@
           <div class="chip" data-val="Other" data-reveals="f_pages_other">Other</div>
         </div>
         <input type="text" id="f_pages_other" class="reveal" placeholder="Other...">
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Requested By</label>
+          <input type="text" id="f_requester" placeholder="Name and team">
+        </div>
+        <div class="field">
+          <label>Needed By</label>
+          <input type="date" id="f_deadline">
+        </div>
+      </div>
+      <div class="field">
+        <label>Sign-Off Owner</label>
+        <input type="text" id="f_signoff" placeholder="Who approves the final design?">
       </div>
     </div>
 
