@@ -35,28 +35,6 @@
 
   header { display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center; }
 
-  .board-link {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 40;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: #0079bf;
-    border: 1px solid #0079bf;
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 11px;
-    font-weight: 500;
-    color: #fff;
-    text-decoration: none;
-    opacity: 0.82;
-    transition: opacity 0.15s ease;
-  }
-  .board-link:hover { opacity: 1; }
-  .board-link svg { flex-shrink: 0; width: 13px; height: 13px; }
-  @media (max-width: 640px) { .board-link { position: static; margin: 0 auto 8px; } }
   header h1 { font-size: 30px; font-weight: 700; color: var(--text); }
   header p { font-size: 14px; font-weight: 300; color: var(--text); }
 
@@ -243,25 +221,6 @@
   .priority-badge { display: flex; align-items: center; flex-direction: column; justify-content: center; }
   .priority-text { display: flex; flex-direction: column; gap: 6px; justify-content: center; }
 
-  .filedrop {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    background: #fff;
-    border: 1.5px dashed var(--border);
-    border-radius: 8px;
-    padding: 24px 12px;
-    text-align: center;
-    cursor: pointer;
-  }
-  .filedrop:hover, .filedrop.drag { border-color: var(--cta); }
-  .filedrop svg { stroke: var(--cta); }
-  .filedrop .main { font-size: 14px; font-weight: 300; color: var(--text); }
-  .filedrop .main b { font-weight: 500; color: var(--cta); }
-  .filedrop .cap { font-size: 12.5px; font-weight: 300; color: var(--faint); }
-  .filedrop span { display: block; color: var(--text); font-weight: 400; font-size: 13px; }
-
   /* Wizard nav */
   .wizard-nav { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 8px; }
   .cta-ticket {
@@ -303,48 +262,6 @@
     white-space: pre-wrap;
     max-height: 300px;
     overflow-y: auto;
-  }
-  .review-attachments { font-size: 13px; color: var(--dim); }
-
-  /* Attachment previews */
-  .attach-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
-  .attach-item { position: relative; width: 84px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-  .attach-thumb {
-    width: 84px; height: 84px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--input-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-  .attach-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .attach-thumb .ext { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: var(--dim); text-transform: uppercase; }
-  .attach-name {
-    font-size: 11px;
-    color: var(--dim);
-    text-align: center;
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .attach-remove {
-    position: absolute;
-    top: -7px; right: -7px;
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: #fff;
-    border: 1px solid var(--border);
-    color: var(--dim);
-    font-size: 13px;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
   }
 
   /* Toast feedback */
@@ -388,15 +305,11 @@
 </style>
 </head>
 <body>
-<a class="board-link" href="https://trello.com/invite/b/699d774274279339e0ae8171/ATTI42c32c3611d1e8b077502b3d6f4b6acfFE19408E/ux-board-2026" target="_blank" rel="noopener">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="1" y="1" width="22" height="22" rx="5" fill="#fff" fill-opacity="0.001"/><rect x="4" y="4" width="7" height="16" rx="1.6" fill="#fff"/><rect x="13" y="4" width="7" height="10" rx="1.6" fill="#fff"/></svg>
-  View UX Workflow
-</a>
 <div class="container">
 
   <header>
     <h1>UX Design Request</h1>
-    <p>Please fill in the form below to the best of your ability.<br>This will automatically generate and submit a ticket to the UX Workflow Trello board.</p>
+    <p>Please fill in the form below to the best of your ability.<br>At the end you'll get a ready-made card to copy and paste into the UX Workflow Trello board.</p>
   </header>
 
   <div class="stepper">
@@ -541,7 +454,7 @@
       </div>
     </div>
 
-    <!-- Step 3 · Inputs, constraints & approach (Inputs/Attachments + UX approach merged, Scope removed) -->
+    <!-- Step 3 · Inputs, constraints & approach -->
     <div class="step" data-step="3">
       <h2 class="step-heading">Inputs, Constraints &amp; Approach</h2>
       <div class="field">
@@ -551,16 +464,6 @@
       <div class="field">
         <label class="med">Constraints (Technical, Legal, Commercial, Accessibility)</label>
         <textarea id="f_constraints" class="r8" placeholder="Platform limits, compliance requirements, partner contractual obligations, dependencies on dev or other teams…"></textarea>
-      </div>
-      <div class="field">
-        <label class="med">Attachments (Screenshots, Briefs, Assets)</label>
-        <label class="filedrop" for="f_files" id="filedrop">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v3a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-3"/><polyline points="7 9 12 4 17 9"/><line x1="12" y1="4" x2="12" y2="15"/></svg>
-          <span class="main"><b>Click to upload</b> or drag and drop</span>
-          <span class="cap">PNG, JPG, PDF up to 10MB per file · attached to the ticket automatically</span>
-        </label>
-        <input type="file" id="f_files" multiple hidden accept="image/*,.pdf">
-        <div class="attach-grid" id="attachGrid"></div>
       </div>
       <div class="field gap8">
         <label>UX Approach</label>
@@ -594,10 +497,9 @@
     <!-- Step 4 · Review -->
     <div class="step" data-step="4" data-label="Review">
       <h2 class="step-heading">Review your request</h2>
-      <p class="hint">Here's everything you've told us — check it over before we create the ticket.</p>
+      <p class="hint">Copy this card, then paste it into a new card on the UX Workflow Trello board and attach any files there.</p>
       <div class="review-title" id="reviewTitle"></div>
       <div class="review-box" id="reviewBody"></div>
-      <div class="review-attachments" id="reviewAttachments"></div>
     </div>
 
     <div class="wizard-nav">
@@ -659,11 +561,6 @@
   }
   function v(id) { return document.getElementById(id).value.trim(); }
 
-  // ── Trello creation via proxy ────────────────────────────────────
-  // The Worker holds the real Trello key/token server-side; nothing secret
-  // ships to the browser. See worker/index.js in the repo for its source.
-  const PROXY_URL = 'https://ux-design-request-proxy.jakerayner96.workers.dev/create-ticket';
-
   let cardTitle = '', cardDesc = '';
 
   function buildCardText() {
@@ -703,11 +600,6 @@
     if (cardDesc.endsWith('---')) cardDesc = cardDesc.slice(0, -3).trim();
   }
 
-  function generateCard() {
-    buildCardText();
-    createTicket();
-  }
-
   // ── Wizard step controller ───────────────────────────────────────
   const TOTAL_STEPS = document.querySelectorAll('.step').length;
   let currentStep = 1;
@@ -732,8 +624,8 @@
     document.getElementById('backBtn').classList.toggle('hidden', currentStep === 1);
     const nextBtn = document.getElementById('nextBtn');
     if (currentStep === TOTAL_STEPS) {
-      nextBtn.textContent = 'Generate UX Ticket';
-      nextBtn.onclick = generateCard;
+      nextBtn.textContent = 'Copy Ticket';
+      nextBtn.onclick = copyTicket;
     } else if (currentStep === TOTAL_STEPS - 1) {
       nextBtn.textContent = 'Review →';
       nextBtn.onclick = goNext;
@@ -747,10 +639,6 @@
     buildCardText();
     document.getElementById('reviewTitle').textContent = cardTitle;
     document.getElementById('reviewBody').textContent = cardDesc;
-    const files = document.getElementById('f_files').files;
-    document.getElementById('reviewAttachments').textContent = files.length
-      ? files.length + ' attachment' + (files.length > 1 ? 's' : '') + ': ' + Array.from(files).map(f => f.name).join(', ')
-      : 'No attachments added.';
   }
 
   function showStep(n) {
@@ -764,7 +652,53 @@
     document.querySelector('.wizard-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function goNext() { if (currentStep < TOTAL_STEPS) showStep(currentStep + 1); }
+  // ── AI prefill (step 1 → step 2/3), fires once per session only ──
+  const AI_SUGGEST_URL = 'https://ux-design-request-proxy.jakerayner96.workers.dev/suggest';
+  let aiPrefillAttempted = false;
+
+  function fillIfEmpty(id, value) {
+    if (!value) return;
+    const el = document.getElementById(id);
+    if (el && !el.value.trim()) el.value = value;
+  }
+
+  async function aiPrefill() {
+    const description = v('f_detail');
+    if (!description) return;
+    const nextBtn = document.getElementById('nextBtn');
+    const orig = nextBtn.textContent;
+    nextBtn.disabled = true;
+    nextBtn.textContent = 'Thinking…';
+    try {
+      const res = await fetch(AI_SUGGEST_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description }),
+      });
+      const result = await res.json();
+      if (res.ok && result.ok && result.suggestions) {
+        const s = result.suggestions;
+        fillIfEmpty('f_problem', s.problem);
+        fillIfEmpty('f_outcome', s.outcome);
+        fillIfEmpty('f_success', s.success);
+        fillIfEmpty('f_inputs', s.inputs);
+        fillIfEmpty('f_constraints', s.constraints);
+      }
+    } catch (err) {
+      console.error('AI prefill failed:', err);
+    } finally {
+      nextBtn.disabled = false;
+      nextBtn.textContent = orig;
+    }
+  }
+
+  async function goNext() {
+    if (currentStep === 1 && !aiPrefillAttempted) {
+      aiPrefillAttempted = true;
+      await aiPrefill();
+    }
+    if (currentStep < TOTAL_STEPS) showStep(currentStep + 1);
+  }
   function goBack() { if (currentStep > 1) showStep(currentStep - 1); }
 
   showStep(1);
@@ -794,53 +728,13 @@
   function hideToast() { document.getElementById('toast').classList.remove('show'); }
   document.getElementById('toastClose').addEventListener('click', hideToast);
 
-  function copyCardToClipboard(btn) {
-    navigator.clipboard.writeText(cardTitle + '\n\n' + cardDesc).then(() => {
-      if (btn) { const orig = btn.textContent; btn.textContent = 'Copied ✓'; setTimeout(() => { btn.textContent = orig; }, 1600); }
-    });
-  }
-
-  // Proxy call failed (network/Worker error): hand the user a copy of the ticket
-  // text and a blank Trello card to paste it into.
-  function goToPrefillFallback(reason) {
-    showToast('error', reason, [
-      { label: 'Copy ticket text', onClick: e => copyCardToClipboard(e.target) },
-      { label: 'Open Trello', primary: true, onClick: () => window.open('https://trello.com/add-card?mode=popup&name=' +
-          encodeURIComponent(cardTitle) + '&desc=' + encodeURIComponent(cardDesc), '_blank') }
-    ]);
-  }
-
-  async function createTicket() {
-    const btn = document.querySelector('.cta-ticket');
-    btn.disabled = true;
+  function copyTicket() {
     hideToast();
-    btn.textContent = 'Creating ticket…';
-    try {
-      const fd = new FormData();
-      fd.append('name', cardTitle);
-      fd.append('desc', cardDesc);
-      const files = document.getElementById('f_files').files;
-      Array.from(files).forEach(f => fd.append('file', f, f.name));
-
-      const res = await fetch(PROXY_URL, { method: 'POST', body: fd });
-      const result = await res.json();
-      if (!res.ok || !result.ok) throw new Error(result.error || ('Request failed: ' + res.status));
-
-      if (result.failed && result.failed.length) {
-        showToast('error', 'Ticket created, but these attachments failed to upload — add them to the card manually:\n' + result.failed.join('\n'), [
-          { label: 'Open ticket', primary: true, onClick: () => { window.location.href = result.url; } }
-        ]);
-      } else {
-        showToast('success', 'Ticket created ✓ Opening in Trello…');
-        setTimeout(() => { window.location.href = result.url; }, 900);
-      }
-    } catch (err) {
-      console.error(err);
-      goToPrefillFallback('Couldn\'t create the ticket directly (' + err.message + ').');
-    } finally {
-      btn.textContent = 'Generate UX Ticket';
-      btn.disabled = false;
-    }
+    navigator.clipboard.writeText(cardTitle + '\n\n' + cardDesc).then(() => {
+      showToast('success', 'Copied ✓ Paste this into a new card on the UX Workflow Trello board, then attach any files there.');
+    }, () => {
+      showToast('error', "Couldn't copy automatically — select the text above and copy it manually.");
+    });
   }
 
   function getRadioLikeChips(id) {
@@ -853,59 +747,9 @@
     document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
     document.querySelectorAll('.chip.on, .radio-card.on, .radio6.on').forEach(el => el.classList.remove('on'));
     document.querySelectorAll('.reveal').forEach(el => el.classList.remove('show'));
-    document.getElementById('f_files').value = '';
-    renderAttachments();
+    aiPrefillAttempted = false;
     showStep(1);
   }
-
-  function renderAttachments() {
-    const input = document.getElementById('f_files');
-    const grid = document.getElementById('attachGrid');
-    grid.innerHTML = '';
-    Array.from(input.files).forEach((file, idx) => {
-      const item = document.createElement('div');
-      item.className = 'attach-item';
-
-      const thumb = document.createElement('div');
-      thumb.className = 'attach-thumb';
-      if (file.type.startsWith('image/')) {
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        img.onload = () => URL.revokeObjectURL(img.src);
-        thumb.appendChild(img);
-      } else {
-        const ext = document.createElement('span');
-        ext.className = 'ext';
-        ext.textContent = (file.name.split('.').pop() || 'file').slice(0, 4);
-        thumb.appendChild(ext);
-      }
-
-      const name = document.createElement('div');
-      name.className = 'attach-name';
-      name.textContent = file.name;
-      name.title = file.name;
-
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.className = 'attach-remove';
-      remove.innerHTML = '&times;';
-      remove.setAttribute('aria-label', 'Remove ' + file.name);
-      remove.addEventListener('click', e => {
-        e.preventDefault();
-        const dt = new DataTransfer();
-        Array.from(input.files).forEach((f, i) => { if (i !== idx) dt.items.add(f); });
-        input.files = dt.files;
-        renderAttachments();
-      });
-
-      item.appendChild(thumb);
-      item.appendChild(name);
-      item.appendChild(remove);
-      grid.appendChild(item);
-    });
-  }
-
-  document.getElementById('f_files').addEventListener('change', renderAttachments);
 
   // Clicking anywhere in the date field opens the native picker, not just the icon
   const dateInput = document.getElementById('f_deadline');
@@ -916,41 +760,20 @@
   dateInput.addEventListener('input', toggleDateEmpty);
   dateInput.addEventListener('change', toggleDateEmpty);
   toggleDateEmpty();
-
-  const drop = document.getElementById('filedrop');
-  ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, e => {
-    e.preventDefault();
-    drop.classList.add('drag');
-  }));
-  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => {
-    e.preventDefault();
-    drop.classList.remove('drag');
-  }));
-  drop.addEventListener('drop', e => {
-    const input = document.getElementById('f_files');
-    const dt = new DataTransfer();
-    Array.from(input.files).forEach(f => dt.items.add(f));
-    Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
-    input.files = dt.files;
-    input.dispatchEvent(new Event('change'));
-  });
 </script>
 <!--
-TRELLO SETUP
+AI SUGGEST SETUP
 
-The real Trello API key/token live server-side only, as secrets on the
-Cloudflare Worker at worker/index.js (deployed as "ux-design-request-proxy").
-They are never shipped to the browser or committed to this repo.
+The Anthropic API key lives server-side only, as a secret on the Cloudflare
+Worker at worker/index.js (deployed as "ux-design-request-proxy"). It is
+never shipped to the browser or committed to this repo.
 
-To rotate them: `wrangler secret put TRELLO_KEY` / `TRELLO_TOKEN` from the
-worker/ directory (requires `wrangler login` once), then `wrangler deploy`.
+To set/rotate it: `wrangler secret put ANTHROPIC_API_KEY` from the worker/
+directory (requires `wrangler login` once), then `wrangler deploy`.
 
-The board/list the Worker creates cards on is hardcoded as IDLIST in
-worker/index.js (currently the "Inbox" list on UX Board 2026) — update that
-constant if the target list changes. List IDs are stable across renames.
-
-ATTACHMENT LIMITS: Trello caps uploads at 10MB per file on free plans
-(250MB on paid). Larger files will fail and be listed in the confirmation.
+No ticket data is sent anywhere else — the Worker no longer talks to Trello.
+Tickets are created manually: copy the generated card text and paste it into
+a new card on the Trello board, then attach any files there directly.
 -->
 
 </body>

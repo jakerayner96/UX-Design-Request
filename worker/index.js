@@ -1,12 +1,13 @@
-// Proxies Trello card/attachment creation so the API key/token never reach the browser.
-// Secrets (TRELLO_KEY, TRELLO_TOKEN) are set via `wrangler secret put`, not committed here.
+// Calls the Anthropic API server-side so the API key never reaches the browser.
+// Secret (ANTHROPIC_API_KEY) is set via `wrangler secret put`, not committed here.
 
 const ALLOWED_ORIGINS = new Set([
   'https://jakerayner96.github.io',
   'null', // file:// local testing
 ]);
 
-const IDLIST = '699d774274279339e0ae8166'; // Inbox, on UX Board 2026
+const MODEL = 'claude-haiku-4-5-20251001';
+const MAX_DESCRIPTION_LENGTH = 4000;
 
 function corsHeaders(origin) {
   const allow = ALLOWED_ORIGINS.has(origin) ? origin : 'https://jakerayner96.github.io';
@@ -27,51 +28,73 @@ export default {
     }
 
     const url = new URL(request.url);
-    if (request.method !== 'POST' || url.pathname !== '/create-ticket') {
-      return new Response('Not found', { status: 404, headers });
+
+    if (request.method === 'POST' && url.pathname === '/suggest') {
+      return handleSuggest(request, env, headers);
     }
 
-    try {
-      const form = await request.formData();
-      const name = form.get('name');
-      const desc = form.get('desc') || '';
-      const files = form.getAll('file');
-
-      if (!name) {
-        return json({ ok: false, error: 'Missing card name' }, 400, headers);
-      }
-
-      const auth = 'key=' + env.TRELLO_KEY + '&token=' + env.TRELLO_TOKEN;
-
-      const cres = await fetch('https://api.trello.com/1/cards?' + new URLSearchParams({
-        key: env.TRELLO_KEY, token: env.TRELLO_TOKEN,
-        idList: IDLIST, name, desc, pos: 'top',
-      }), { method: 'POST' });
-      if (!cres.ok) {
-        return json({ ok: false, error: 'Card creation failed: ' + cres.status }, 502, headers);
-      }
-      const card = await cres.json();
-
-      const failed = [];
-      for (const file of files) {
-        const fd = new FormData();
-        fd.append('file', file, file.name);
-        try {
-          const ares = await fetch('https://api.trello.com/1/cards/' + card.id + '/attachments?' + auth, {
-            method: 'POST', body: fd,
-          });
-          if (!ares.ok) failed.push(file.name);
-        } catch (e) {
-          failed.push(file.name);
-        }
-      }
-
-      return json({ ok: true, url: card.shortUrl || card.url, failed }, 200, headers);
-    } catch (err) {
-      return json({ ok: false, error: err.message || 'Unexpected error' }, 500, headers);
-    }
+    return new Response('Not found', { status: 404, headers });
   },
 };
+
+async function handleSuggest(request, env, headers) {
+  try {
+    const body = await request.json();
+    const description = (body.description || '').trim().slice(0, MAX_DESCRIPTION_LENGTH);
+    if (!description) {
+      return json({ ok: false, error: 'Missing description' }, 400, headers);
+    }
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 600,
+        tools: [{
+          name: 'fill_ticket_fields',
+          description: 'Return draft content for the other UX ticket fields, inferred from the description.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              problem: { type: 'string', description: "What's broken, missing, or underperforming that triggered this request. Empty string if not inferable from the description." },
+              outcome: { type: 'string', description: 'The outcome or success the requester wants to achieve. Empty string if not inferable.' },
+              success: { type: 'string', description: 'A short, measurable success metric (e.g. conversion rate, AOV, engagement). Empty string if not inferable.' },
+              inputs: { type: 'string', description: 'Any inputs, assets, guidelines, or benchmarking links mentioned. Empty string if none mentioned.' },
+              constraints: { type: 'string', description: 'Any technical, legal, commercial, or accessibility constraints mentioned. Empty string if none mentioned.' },
+            },
+            required: ['problem', 'outcome', 'success', 'inputs', 'constraints'],
+          },
+        }],
+        tool_choice: { type: 'tool', name: 'fill_ticket_fields' },
+        messages: [{
+          role: 'user',
+          content: 'Description of a UX design request:\n\n' + description +
+            '\n\nDraft short, concise content for each field below, based only on what the description genuinely supports. ' +
+            "Leave a field as an empty string rather than inventing detail that isn't there.",
+        }],
+      }),
+    });
+
+    if (!res.ok) {
+      return json({ ok: false, error: 'AI request failed: ' + res.status }, 502, headers);
+    }
+
+    const data = await res.json();
+    const toolUse = (data.content || []).find(block => block.type === 'tool_use');
+    if (!toolUse) {
+      return json({ ok: false, error: 'No suggestions returned' }, 502, headers);
+    }
+
+    return json({ ok: true, suggestions: toolUse.input }, 200, headers);
+  } catch (err) {
+    return json({ ok: false, error: err.message || 'Unexpected error' }, 500, headers);
+  }
+}
 
 function json(body, status, headers) {
   return new Response(JSON.stringify(body), {
