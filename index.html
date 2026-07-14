@@ -641,7 +641,7 @@
     document.getElementById('reviewBody').textContent = cardDesc;
   }
 
-  function showStep(n) {
+  function showStep(n, scroll) {
     currentStep = n;
     document.querySelectorAll('.step').forEach(el => {
       el.classList.toggle('active', Number(el.dataset.step) === n);
@@ -649,7 +649,9 @@
     renderStepper();
     updateNav();
     if (n === TOTAL_STEPS) renderReview();
-    document.querySelector('.wizard-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (scroll !== false) {
+      document.querySelector('.wizard-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   // ── AI prefill (step 1 → step 2/3), fires once per session only ──
@@ -701,7 +703,7 @@
   }
   function goBack() { if (currentStep > 1) showStep(currentStep - 1); }
 
-  showStep(1);
+  showStep(1, false);
 
   function formatDate(iso) {
     if (!iso) return '';
@@ -764,13 +766,12 @@
 <!--
 AI SUGGEST SETUP
 
-The Google Gemini API key lives server-side only, as a secret on the
-Cloudflare Worker at worker/index.js (deployed as "ux-design-request-proxy").
-It is never shipped to the browser or committed to this repo.
+Runs on Cloudflare Workers AI (the `[ai]` binding in wrangler.toml) — no
+external API key, no secret to set. The model runs on Cloudflare's own
+infrastructure and is free for this tool's volume.
 
-Get a free key at aistudio.google.com (Get API Key), then set/rotate it with
-`wrangler secret put GEMINI_API_KEY` from the worker/ directory (requires
-`wrangler login` once), then `wrangler deploy`.
+To swap the model, change the MODEL constant in worker/index.js, then
+`wrangler deploy` from the worker/ directory.
 
 No ticket data is sent anywhere else — the Worker no longer talks to Trello.
 Tickets are created manually: copy the generated card text and paste it into

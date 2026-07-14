@@ -1,12 +1,12 @@
-// Calls the Google Gemini API server-side so the API key never reaches the browser.
-// Secret (GEMINI_API_KEY) is set via `wrangler secret put`, not committed here.
+// Calls Cloudflare Workers AI server-side to prefill fields from the description.
+// No external API key needed — the AI binding runs on Cloudflare's own infrastructure.
 
 const ALLOWED_ORIGINS = new Set([
   'https://jakerayner96.github.io',
   'null', // file:// local testing
 ]);
 
-const MODEL = 'gemini-2.0-flash';
+const MODEL = '@cf/meta/llama-3.1-8b-instruct-fp8';
 const MAX_DESCRIPTION_LENGTH = 4000;
 
 function corsHeaders(origin) {
@@ -48,52 +48,30 @@ async function handleSuggest(request, env, headers) {
     const prompt = 'Description of a UX design request:\n"""\n' + description + '\n"""\n\n' +
       'Draft short, concise content for each field below, based only on what the description genuinely supports. ' +
       "Leave a field as an empty string rather than inventing detail that isn't there.\n\n" +
+      'Respond with ONLY a single JSON object, no other text and no markdown fences, in exactly this shape:\n' +
+      '{"problem": "...", "outcome": "...", "success": "...", "inputs": "...", "constraints": "..."}\n\n' +
       'problem: what\'s broken, missing, or underperforming that triggered this request.\n' +
       'outcome: the outcome or success the requester wants to achieve.\n' +
       'success: a short, measurable success metric (e.g. conversion rate, AOV, engagement).\n' +
       'inputs: any inputs, assets, guidelines, or benchmarking links mentioned.\n' +
       'constraints: any technical, legal, commercial, or accessibility constraints mentioned.';
 
-    const res = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/' + MODEL + ':generateContent?key=' + env.GEMINI_API_KEY,
-      {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: {
-            response_mime_type: 'application/json',
-            response_schema: {
-              type: 'OBJECT',
-              properties: {
-                problem: { type: 'STRING' },
-                outcome: { type: 'STRING' },
-                success: { type: 'STRING' },
-                inputs: { type: 'STRING' },
-                constraints: { type: 'STRING' },
-              },
-              required: ['problem', 'outcome', 'success', 'inputs', 'constraints'],
-            },
-          },
-        }),
-      },
-    );
+    const result = await env.AI.run(MODEL, {
+      messages: [
+        { role: 'system', content: 'You output only valid JSON, with no surrounding text or markdown.' },
+        { role: 'user', content: prompt },
+      ],
+    });
 
-    if (!res.ok) {
-      return json({ ok: false, error: 'AI request failed: ' + res.status }, 502, headers);
-    }
-
-    const data = await res.json();
-    const text = data.candidates && data.candidates[0] && data.candidates[0].content &&
-      data.candidates[0].content.parts && data.candidates[0].content.parts[0] &&
-      data.candidates[0].content.parts[0].text;
-    if (!text) {
+    const text = (result && result.response) || '';
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) {
       return json({ ok: false, error: 'No suggestions returned' }, 502, headers);
     }
 
     let suggestions;
     try {
-      suggestions = JSON.parse(text);
+      suggestions = JSON.parse(match[0]);
     } catch (e) {
       return json({ ok: false, error: 'Could not parse suggestions' }, 502, headers);
     }
