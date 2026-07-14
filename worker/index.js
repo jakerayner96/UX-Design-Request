@@ -1,12 +1,12 @@
-// Calls the Anthropic API server-side so the API key never reaches the browser.
-// Secret (ANTHROPIC_API_KEY) is set via `wrangler secret put`, not committed here.
+// Calls the Google Gemini API server-side so the API key never reaches the browser.
+// Secret (GEMINI_API_KEY) is set via `wrangler secret put`, not committed here.
 
 const ALLOWED_ORIGINS = new Set([
   'https://jakerayner96.github.io',
   'null', // file:// local testing
 ]);
 
-const MODEL = 'claude-haiku-4-5-20251001';
+const MODEL = 'gemini-2.0-flash';
 const MAX_DESCRIPTION_LENGTH = 4000;
 
 function corsHeaders(origin) {
@@ -45,52 +45,60 @@ async function handleSuggest(request, env, headers) {
       return json({ ok: false, error: 'Missing description' }, 400, headers);
     }
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 600,
-        tools: [{
-          name: 'fill_ticket_fields',
-          description: 'Return draft content for the other UX ticket fields, inferred from the description.',
-          input_schema: {
-            type: 'object',
-            properties: {
-              problem: { type: 'string', description: "What's broken, missing, or underperforming that triggered this request. Empty string if not inferable from the description." },
-              outcome: { type: 'string', description: 'The outcome or success the requester wants to achieve. Empty string if not inferable.' },
-              success: { type: 'string', description: 'A short, measurable success metric (e.g. conversion rate, AOV, engagement). Empty string if not inferable.' },
-              inputs: { type: 'string', description: 'Any inputs, assets, guidelines, or benchmarking links mentioned. Empty string if none mentioned.' },
-              constraints: { type: 'string', description: 'Any technical, legal, commercial, or accessibility constraints mentioned. Empty string if none mentioned.' },
+    const prompt = 'Description of a UX design request:\n"""\n' + description + '\n"""\n\n' +
+      'Draft short, concise content for each field below, based only on what the description genuinely supports. ' +
+      "Leave a field as an empty string rather than inventing detail that isn't there.\n\n" +
+      'problem: what\'s broken, missing, or underperforming that triggered this request.\n' +
+      'outcome: the outcome or success the requester wants to achieve.\n' +
+      'success: a short, measurable success metric (e.g. conversion rate, AOV, engagement).\n' +
+      'inputs: any inputs, assets, guidelines, or benchmarking links mentioned.\n' +
+      'constraints: any technical, legal, commercial, or accessibility constraints mentioned.';
+
+    const res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + MODEL + ':generateContent?key=' + env.GEMINI_API_KEY,
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            response_mime_type: 'application/json',
+            response_schema: {
+              type: 'OBJECT',
+              properties: {
+                problem: { type: 'STRING' },
+                outcome: { type: 'STRING' },
+                success: { type: 'STRING' },
+                inputs: { type: 'STRING' },
+                constraints: { type: 'STRING' },
+              },
+              required: ['problem', 'outcome', 'success', 'inputs', 'constraints'],
             },
-            required: ['problem', 'outcome', 'success', 'inputs', 'constraints'],
           },
-        }],
-        tool_choice: { type: 'tool', name: 'fill_ticket_fields' },
-        messages: [{
-          role: 'user',
-          content: 'Description of a UX design request:\n\n' + description +
-            '\n\nDraft short, concise content for each field below, based only on what the description genuinely supports. ' +
-            "Leave a field as an empty string rather than inventing detail that isn't there.",
-        }],
-      }),
-    });
+        }),
+      },
+    );
 
     if (!res.ok) {
       return json({ ok: false, error: 'AI request failed: ' + res.status }, 502, headers);
     }
 
     const data = await res.json();
-    const toolUse = (data.content || []).find(block => block.type === 'tool_use');
-    if (!toolUse) {
+    const text = data.candidates && data.candidates[0] && data.candidates[0].content &&
+      data.candidates[0].content.parts && data.candidates[0].content.parts[0] &&
+      data.candidates[0].content.parts[0].text;
+    if (!text) {
       return json({ ok: false, error: 'No suggestions returned' }, 502, headers);
     }
 
-    return json({ ok: true, suggestions: toolUse.input }, 200, headers);
+    let suggestions;
+    try {
+      suggestions = JSON.parse(text);
+    } catch (e) {
+      return json({ ok: false, error: 'Could not parse suggestions' }, 502, headers);
+    }
+
+    return json({ ok: true, suggestions }, 200, headers);
   } catch (err) {
     return json({ ok: false, error: err.message || 'Unexpected error' }, 500, headers);
   }

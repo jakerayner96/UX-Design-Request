@@ -426,7 +426,7 @@
           <input type="text" id="f_requester" placeholder="Name and team">
         </div>
         <div class="field">
-          <label>Needed By</label>
+          <label>Deadline</label>
           <input type="date" id="f_deadline">
         </div>
       </div>
@@ -575,7 +575,7 @@
 
     pushBlock('Description', v('f_detail'));
     push('Requested by', v('f_requester'));
-    push('Needed by', formatDate(v('f_deadline')));
+    push('Deadline', formatDate(v('f_deadline')));
     push('Sign-off owner', v('f_signoff'));
     push('Priority', priority);
     const brands = getChips('brands').filter(x => x !== 'Other');
@@ -764,12 +764,13 @@
 <!--
 AI SUGGEST SETUP
 
-The Anthropic API key lives server-side only, as a secret on the Cloudflare
-Worker at worker/index.js (deployed as "ux-design-request-proxy"). It is
-never shipped to the browser or committed to this repo.
+The Google Gemini API key lives server-side only, as a secret on the
+Cloudflare Worker at worker/index.js (deployed as "ux-design-request-proxy").
+It is never shipped to the browser or committed to this repo.
 
-To set/rotate it: `wrangler secret put ANTHROPIC_API_KEY` from the worker/
-directory (requires `wrangler login` once), then `wrangler deploy`.
+Get a free key at aistudio.google.com (Get API Key), then set/rotate it with
+`wrangler secret put GEMINI_API_KEY` from the worker/ directory (requires
+`wrangler login` once), then `wrangler deploy`.
 
 No ticket data is sent anywhere else — the Worker no longer talks to Trello.
 Tickets are created manually: copy the generated card text and paste it into
