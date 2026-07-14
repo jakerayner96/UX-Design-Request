@@ -108,7 +108,6 @@
   }
   textarea { resize: vertical; min-height: 88px; padding: 14px 16px; }
   textarea.lg { min-height: 160px; }
-  .r8 { border-radius: 8px !important; }
   input:focus, textarea:focus, select:focus { outline: none; border-color: var(--cta); background: #fff; }
   ::placeholder { color: var(--faint); font-weight: 300; }
   input[type="date"] { cursor: pointer; }
@@ -249,20 +248,70 @@
   .link-back.hidden { display: none; }
 
   /* Review step */
-  .review-title { font-size: 16px; font-weight: 600; color: var(--text); }
+  .review-hint { font-size: 15.5px; font-weight: 400; color: var(--text); margin-top: -14px; text-align: left; }
+  .step[data-step="4"] .step-heading { font-size: 28px; }
+
+  /* Mock Trello card */
+  .trello-mock {
+    background: #1d2125;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .trello-pill {
+    display: inline-flex;
+    align-self: flex-start;
+    background: #2c3339;
+    color: #b6c2cf;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 4px;
+  }
+  .trello-field { position: relative; background: #22272b; border-radius: 8px; padding: 16px 52px 16px 16px; }
+  .trello-field-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: #8c9bab;
+    margin-bottom: 8px;
+  }
+  .review-title {
+    font-size: 19px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.4;
+  }
   .review-box {
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
     font-size: 12.5px;
     line-height: 1.6;
-    color: var(--dim);
+    color: #b6c2cf;
     white-space: pre-wrap;
     max-height: 300px;
     overflow-y: auto;
   }
+  .trello-copy-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 6px;
+    color: #b6c2cf;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .trello-copy-btn:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+  .trello-copy-btn.copied { color: #4bce97; }
 
   /* Toast feedback */
   .toast {
@@ -408,6 +457,7 @@
         <label>Pages / Touchpoints</label>
         <p class="sub">Every page the feature appears on.</p>
         <div class="chips" id="pages">
+          <div class="chip" data-val="All Pages">All Pages</div>
           <div class="chip" data-val="Homepage/Content">Homepage/Content</div>
           <div class="chip" data-val="PLP">PLP</div>
           <div class="chip" data-val="PDP">PDP</div>
@@ -454,19 +504,10 @@
       </div>
     </div>
 
-    <!-- Step 3 · Inputs, constraints & approach -->
+    <!-- Step 3 · Approach -->
     <div class="step" data-step="3">
-      <h2 class="step-heading">Inputs, Constraints &amp; Approach</h2>
-      <div class="field">
-        <label class="med">Inputs You'll Provide</label>
-        <textarea id="f_inputs" class="r8" placeholder="Copy, assets, guidelines, benchmarking links etc..."></textarea>
-      </div>
-      <div class="field">
-        <label class="med">Constraints (Technical, Legal, Commercial, Accessibility)</label>
-        <textarea id="f_constraints" class="r8" placeholder="Platform limits, compliance requirements, partner contractual obligations, dependencies on dev or other teams…"></textarea>
-      </div>
+      <h2 class="step-heading">UX Approach</h2>
       <div class="field gap8">
-        <label>UX Approach</label>
         <p class="sub">Tells us how you want us to approach this ticket.</p>
         <div class="radio-group" id="approach">
           <div class="radio-card" data-val="Deliver">
@@ -496,10 +537,24 @@
 
     <!-- Step 4 · Review -->
     <div class="step" data-step="4" data-label="Review">
-      <h2 class="step-heading">Review your request</h2>
-      <p class="hint">Copy this card, then paste it into a new card on the UX Workflow Trello board and attach any files there.</p>
-      <div class="review-title" id="reviewTitle"></div>
-      <div class="review-box" id="reviewBody"></div>
+      <h2 class="step-heading">Review and Copy to Trello</h2>
+      <p class="review-hint">Copy the title and description below, then paste them into a new card on the UX Workflow Trello board and attach any files there.</p>
+      <div class="trello-mock">
+        <span class="trello-pill">To Do</span>
+        <div class="trello-field">
+          <button class="trello-copy-btn" type="button" aria-label="Copy title" onclick="copyField(cardTitle, this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+          <div class="review-title" id="reviewTitle"></div>
+        </div>
+        <div class="trello-field">
+          <button class="trello-copy-btn" type="button" aria-label="Copy description" onclick="copyField(cardDesc, this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+          <div class="trello-field-label">Description</div>
+          <div class="review-box" id="reviewBody"></div>
+        </div>
+      </div>
     </div>
 
     <div class="wizard-nav">
@@ -592,8 +647,6 @@
     push('Success measure', v('f_success'));
     d.push('---');
 
-    pushBlock('Inputs provided', v('f_inputs'));
-    pushBlock('Constraints', v('f_constraints'));
     push('UX approach', getRadio('approach'));
 
     cardDesc = d.filter((x, i) => !(x === '---' && (i === 0 || d[i-1] === '---'))).join('\n\n');
@@ -658,10 +711,12 @@
   const AI_SUGGEST_URL = 'https://ux-design-request-proxy.jakerayner96.workers.dev/suggest';
   let aiPrefillAttempted = false;
 
-  function fillIfEmpty(id, value) {
-    if (!value) return;
+  function appendToPlaceholder(id, question) {
+    if (!question) return;
+    const trimmed = question.trim();
+    if (!trimmed) return;
     const el = document.getElementById(id);
-    if (el && !el.value.trim()) el.value = value;
+    if (el) el.placeholder = el.placeholder + ' ' + trimmed;
   }
 
   async function aiPrefill() {
@@ -680,11 +735,8 @@
       const result = await res.json();
       if (res.ok && result.ok && result.suggestions) {
         const s = result.suggestions;
-        fillIfEmpty('f_problem', s.problem);
-        fillIfEmpty('f_outcome', s.outcome);
-        fillIfEmpty('f_success', s.success);
-        fillIfEmpty('f_inputs', s.inputs);
-        fillIfEmpty('f_constraints', s.constraints);
+        appendToPlaceholder('f_problem', s.problem);
+        appendToPlaceholder('f_outcome', s.outcome);
       }
     } catch (err) {
       console.error('AI prefill failed:', err);
@@ -736,6 +788,17 @@
       showToast('success', 'Copied ✓ Paste this into a new card on the UX Workflow Trello board, then attach any files there.');
     }, () => {
       showToast('error', "Couldn't copy automatically — select the text above and copy it manually.");
+    });
+  }
+
+  const CHECK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  function copyField(text, btn) {
+    navigator.clipboard.writeText(text || '').then(() => {
+      const orig = btn.innerHTML;
+      btn.innerHTML = CHECK_SVG;
+      btn.classList.add('copied');
+      setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 1400);
     });
   }
 

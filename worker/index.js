@@ -1,4 +1,4 @@
-// Calls Cloudflare Workers AI server-side to prefill fields from the description.
+// Calls Cloudflare Workers AI server-side to suggest follow-up questions from the description.
 // No external API key needed — the AI binding runs on Cloudflare's own infrastructure.
 
 const ALLOWED_ORIGINS = new Set([
@@ -46,15 +46,15 @@ async function handleSuggest(request, env, headers) {
     }
 
     const prompt = 'Description of a UX design request:\n"""\n' + description + '\n"""\n\n' +
-      'Draft short, concise content for each field below, based only on what the description genuinely supports. ' +
-      "Leave a field as an empty string rather than inventing detail that isn't there.\n\n" +
+      'Write ONE short follow-up question for each field below, tailored to what is actually in the ' +
+      'description above. Do NOT answer or summarize the description — write a NEW clarifying question ' +
+      'that helps the requester think through what to write, no more than 12 words, phrased so it reads ' +
+      "naturally as a continuation of the question already shown to them. If nothing relevant can be " +
+      'inferred from the description, leave that field as an empty string rather than inventing one.\n\n' +
+      'problem: shown next to "What\'s broken, missing, or underperforming? What triggered this request?"\n' +
+      'outcome: shown next to "What do others do? What does success for us look like?"\n\n' +
       'Respond with ONLY a single JSON object, no other text and no markdown fences, in exactly this shape:\n' +
-      '{"problem": "...", "outcome": "...", "success": "...", "inputs": "...", "constraints": "..."}\n\n' +
-      'problem: what\'s broken, missing, or underperforming that triggered this request.\n' +
-      'outcome: the outcome or success the requester wants to achieve.\n' +
-      'success: a short, measurable success metric (e.g. conversion rate, AOV, engagement).\n' +
-      'inputs: any inputs, assets, guidelines, or benchmarking links mentioned.\n' +
-      'constraints: any technical, legal, commercial, or accessibility constraints mentioned.';
+      '{"problem": "...", "outcome": "..."}';
 
     const result = await env.AI.run(MODEL, {
       messages: [
