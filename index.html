@@ -483,10 +483,6 @@
           </div>
         </div>
       </div>
-      <div class="field">
-        <label>End User / Audience</label>
-        <input type="text" id="f_audience" placeholder="Who experiences this?">
-      </div>
       <div class="field gap8">
         <label>Brands Impacted</label>
         <div class="chips" id="brands">
@@ -499,10 +495,6 @@
           <div class="chip" data-val="Other" data-reveals="f_brands_other">Other</div>
         </div>
         <input type="text" id="f_brands_other" class="reveal" placeholder="Other...">
-      </div>
-      <div class="field">
-        <label>Regions / Markets</label>
-        <input type="text" id="f_regions" placeholder="e.g. UK only, UK + EU, all markets">
       </div>
       <div class="field gap8">
         <label>Platforms</label>
@@ -688,11 +680,9 @@
     push('Needed by', formatDate(v('f_deadline')));
     push('Sign-off owner', v('f_signoff'));
     push('Priority', priority);
-    push('Audience', v('f_audience'));
     const brands = getChips('brands').filter(x => x !== 'Other');
     if (v('f_brands_other')) brands.push(v('f_brands_other'));
     push('Brands impacted', brands.join(', '));
-    push('Regions', v('f_regions'));
     push('Platforms', getRadioLikeChips('platforms'));
     const pages = getChips('pages').filter(x => x !== 'Other');
     if (v('f_pages_other')) pages.push(v('f_pages_other'));
